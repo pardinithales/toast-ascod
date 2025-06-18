@@ -1,200 +1,191 @@
-# Classificador ASCOD/TOAST - Sistema de Análise de AVC com IA
+# 🧠 Classificador ASCOD/TOAST para AVC com IA
 
-Sistema avançado para classificação etiológica de AVC isquêmico utilizando os critérios ASCOD e TOAST, com suporte de Inteligência Artificial (Google Gemini).
+Sistema inteligente para classificação etiológica de Acidente Vascular Cerebral (AVC) utilizando os critérios ASCOD e TOAST, com suporte de Inteligência Artificial via Google Gemini.
 
-## 🚀 Características
+## 🚀 Funcionalidades
 
+- **Classificação ASCOD**: Análise detalhada em 5 categorias (Aterosclerose, Small-vessel, Cardiopatia, Outras causas, Dissecção)
+- **Classificação TOAST**: Determinação do subtipo etiológico do AVC
 - **Interface Web Moderna**: Design responsivo e intuitivo
-- **Duas Modalidades de Entrada**:
-  - Formulário estruturado com campos específicos
-  - Entrada de texto livre para análise direta
-- **Análise com IA**: Integração com Google Gemini para classificação precisa
-- **Visualização Rica**: Resultados apresentados em cards interativos
-- **API REST**: Backend Flask para fácil integração
+- **Análise com IA**: Integração com Google Gemini para análise de casos clínicos
+- **Múltiplos Formatos**: Entrada estruturada ou texto livre
 
-## 📋 Pré-requisitos
+## 🔧 Configuração das Variáveis de Ambiente
 
+### ⚠️ IMPORTANTE: Configuração da API Gemini
+
+Este projeto requer uma chave da API Google Gemini para funcionar. **NÃO** incluímos chaves hardcoded por segurança.
+
+#### 1. Obter Chave da API Gemini
+1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Crie uma nova chave de API
+3. Copie a chave gerada
+
+#### 2. Configurar Variáveis de Ambiente
+
+**Opção A: Arquivo .env (Recomendado para desenvolvimento)**
+```bash
+# Copie o arquivo de exemplo
+cp env.example .env
+
+# Edite o arquivo .env e adicione sua chave
+GEMINI_API_KEY=sua_chave_aqui
+FLASK_ENV=development
+FLASK_DEBUG=True
+PORT=5000
+```
+
+**Opção B: Variáveis de Sistema (Para produção)**
+```bash
+export GEMINI_API_KEY=sua_chave_aqui
+export FLASK_ENV=production
+export FLASK_DEBUG=False
+```
+
+**Opção C: Arquivo config.env (Alternativa)**
+```bash
+# Use o arquivo config.env já criado
+# Edite e adicione sua chave da API
+```
+
+## 🏃‍♂️ Como Executar
+
+### Pré-requisitos
 - Python 3.8+
-- Chave de API do Google Gemini
-- Git (para deploy)
+- pip
 
-## 🔧 Instalação Local
-
-1. Clone o repositório:
+### Instalação
 ```bash
-git clone https://github.com/seu-usuario/ascod-toast-classifier.git
-cd ascod-toast-classifier
-```
+# Clone o repositório
+git clone https://github.com/pardinithales/toast-ascod.git
+cd toast-ascod
 
-2. Crie um ambiente virtual:
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
-```
-
-3. Instale as dependências:
-```bash
+# Instale as dependências
 pip install -r requirements.txt
-```
 
-4. Configure as variáveis de ambiente:
-```bash
-# Windows
-set GEMINI_API_KEY=sua_chave_api_aqui
-# Linux/Mac
-export GEMINI_API_KEY=sua_chave_api_aqui
-```
+# Configure as variáveis de ambiente (veja seção acima)
+cp env.example .env
+# Edite o .env com sua chave da API
 
-5. Execute a aplicação:
-```bash
+# Execute a aplicação
 python app.py
 ```
 
-Acesse: `http://localhost:5000`
+A aplicação estará disponível em `http://localhost:5000`
 
-## 🌐 Deploy no Render
-
-### Passo 1: Prepare o código
-
-1. Crie um repositório no GitHub
-2. Faça commit de todos os arquivos:
+### Versão CLI (Python)
 ```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/seu-usuario/ascod-toast-classifier.git
-git push -u origin main
+python ascod_classifier.py
 ```
 
-### Passo 2: Configure no Render
+## 🌐 Deploy em Produção
 
-1. Acesse [render.com](https://render.com) e crie uma conta
-2. Clique em "New +" → "Web Service"
-3. Conecte seu repositório GitHub
-4. Configure:
-   - **Name**: ascod-toast-classifier
-   - **Environment**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app`
+### Render (Recomendado)
+1. Fork este repositório
+2. Conecte ao [Render](https://render.com)
+3. Configure as variáveis de ambiente:
+   - `GEMINI_API_KEY`: Sua chave da API
+   - `PYTHON_VERSION`: 3.11.0
 
-### Passo 3: Variáveis de Ambiente
-
-No painel do Render, adicione:
-- `GEMINI_API_KEY`: Sua chave API do Google Gemini
-- `PYTHON_VERSION`: 3.11.7
-
-### Passo 4: Deploy
-
-Clique em "Create Web Service" e aguarde o deploy!
-
-## 🐳 Deploy com Docker (Alternativa)
-
-1. Crie um `Dockerfile`:
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
-```
-
-2. Build e execute:
+### Vercel
 ```bash
-docker build -t ascod-classifier .
-docker run -p 5000:5000 -e GEMINI_API_KEY=sua_chave ascod-classifier
-```
-
-## 🚀 Deploy no Vercel (Alternativa Rápida)
-
-1. Instale Vercel CLI:
-```bash
+# Instale a CLI do Vercel
 npm i -g vercel
+
+# Configure as variáveis de ambiente
+vercel env add GEMINI_API_KEY
+
+# Deploy
+vercel --prod
 ```
 
-2. Crie `vercel.json`:
-```json
-{
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "app.py"
-    }
-  ]
-}
-```
-
-3. Deploy:
+### Docker
 ```bash
-vercel
+# Build
+docker build -t toast-ascod .
+
+# Run (com variáveis de ambiente)
+docker run -p 5000:5000 -e GEMINI_API_KEY=sua_chave_aqui toast-ascod
 ```
 
-## 📦 Criando Executável Standalone (Windows)
-
-Para criar um executável `.exe`:
-
-1. Instale PyInstaller:
+### Heroku
 ```bash
-pip install pyinstaller
+# Configure a variável de ambiente
+heroku config:set GEMINI_API_KEY=sua_chave_aqui
+
+# Deploy
+git push heroku main
 ```
 
-2. Crie o executável:
-```bash
-pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" --hidden-import flask app.py
+## 📁 Estrutura do Projeto
+
+```
+toast-ascod/
+├── app.py                 # Aplicação Flask principal
+├── ascod_classifier.py    # Classificador CLI Python
+├── templates/
+│   └── index.html        # Interface web
+├── static/
+│   ├── css/style.css     # Estilos
+│   └── js/app.js         # JavaScript
+├── requirements.txt       # Dependências Python
+├── Procfile              # Configuração Heroku/Render
+├── Dockerfile            # Configuração Docker
+├── vercel.json           # Configuração Vercel
+├── env.example           # Exemplo de variáveis de ambiente
+└── README.md             # Este arquivo
 ```
 
-3. O executável estará em `dist/app.exe`
+## 🔒 Segurança
 
-## 🔑 Obtendo Chave API Gemini
+- ✅ Chaves de API armazenadas em variáveis de ambiente
+- ✅ Arquivos .env incluídos no .gitignore
+- ✅ Validação de entrada de dados
+- ✅ CORS configurado adequadamente
 
-1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Clique em "Create API Key"
-3. Copie a chave gerada
+## 📖 Como Usar
 
-## 📊 Uso da Aplicação
+### Interface Web
+1. Acesse `http://localhost:5000`
+2. Escolha entre entrada estruturada ou texto livre
+3. Preencha os dados do paciente
+4. Visualize as classificações ASCOD e TOAST
+5. Use a IA para análise adicional
 
-### Entrada Estruturada
-1. Preencha os campos do formulário
-2. Clique em "Analisar com IA"
-3. Visualize os resultados
+### CLI Python
+1. Execute `python ascod_classifier.py`
+2. Siga as instruções interativas
+3. Obtenha classificação detalhada
 
-### Entrada de Texto Livre
-1. Cole a descrição clínica completa
-2. Clique em "Analisar com IA"
-3. Visualize os resultados
+## 🤝 Contribuição
 
-## 🛠️ Tecnologias Utilizadas
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-- **Backend**: Python, Flask, Flask-CORS
-- **Frontend**: HTML5, CSS3, JavaScript
-- **IA**: Google Gemini API
-- **Deploy**: Render/Heroku/Vercel
+## 📄 Licença
 
-## 📝 Licença
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-Este projeto está sob a licença MIT.
+## 👨‍⚕️ Autor
 
-## 👥 Contribuição
+**Dr. Thales Pardini** - Neurologista
+- Especialista em Neurologia Vascular
+- Desenvolvedor de ferramentas médicas com IA
 
-Contribuições são bem-vindas! Por favor, abra uma issue ou pull request.
+## ⚠️ Aviso Médico
 
-## 📞 Suporte
+Esta ferramenta é destinada ao **suporte à decisão clínica** e não substitui o julgamento médico profissional. Sempre confirme os resultados com avaliação clínica adequada.
 
-Para dúvidas ou problemas, abra uma issue no GitHub. 
+---
+
+**🔗 Links Úteis:**
+- [Critérios ASCOD](https://pubmed.ncbi.nlm.nih.gov/23970794/)
+- [Critérios TOAST](https://pubmed.ncbi.nlm.nih.gov/8418537/)
+- [Google AI Studio](https://makersuite.google.com/)
+
+---
+
+⭐ **Se este projeto foi útil, deixe uma estrela no GitHub!** 
