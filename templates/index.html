@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificador ASCOD/TOAST - Análise Avançada de AVC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <h1>Classificador ASCOD/TOAST</h1>
+                </div>
+                <p class="subtitle">Sistema Avançado de Análise Etiológica de AVC com Inteligência Artificial</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab-button active" data-tab="structured">
+                    <i class="fas fa-list-check"></i>
+                    Entrada Estruturada
+                </button>
+                <button class="tab-button" data-tab="text">
+                    <i class="fas fa-file-text"></i>
+                    Texto Livre
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- Structured Input Tab -->
+                <div id="structured-tab" class="tab-pane active">
+                    <form id="structured-form" class="structured-form">
+                        <!-- Fatores de Risco -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-heart-pulse"></i>
+                                Fatores de Risco Vascular
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="htn" name="htn">
+                                    <label for="htn">Hipertensão (HAS)</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="dm" name="dm">
+                                    <label for="dm">Diabetes Mellitus</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="dlp" name="dlp">
+                                    <label for="dlp">Dislipidemia</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="smoker" name="smoker">
+                                    <label for="smoker">Tabagismo</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Achados de Imagem -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-x-ray"></i>
+                                Achados de Imagem
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="stenosis">Estenose Arterial Ipsilateral</label>
+                                    <div class="range-input">
+                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="0">
+                                        <span class="range-value">0%</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="infarct_type">Tipo de Infarto</label>
+                                    <select id="infarct_type" name="infarct_type">
+                                        <option value="none">Não especificado</option>
+                                        <option value="cortical_large">Cortical ou >1.5cm</option>
+                                        <option value="subcortical_small_lacunar">Subcortical lacunar (<1.5cm)</option>
+                                        <option value="subcortical_other_size">Subcortical não lacunar</option>
+                                    </select>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="leukoaraiosis" name="leukoaraiosis">
+                                    <label for="leukoaraiosis">Leucoaraiose presente</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Achados Cardíacos -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-heart"></i>
+                                Avaliação Cardíaca
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="afib" name="afib">
+                                    <label for="afib">Fibrilação/Flutter Atrial</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="mech_valve" name="mech_valve">
+                                    <label for="mech_valve">Prótese Valvar Mecânica</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="recent_mi" name="recent_mi">
+                                    <label for="recent_mi">IAM Recente (<3 meses)</label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lvef">Fração de Ejeção do VE</label>
+                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="N/A se não avaliado">
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="thrombus" name="thrombus">
+                                    <label for="thrombus">Trombo AE/VE</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="endocarditis" name="endocarditis">
+                                    <label for="endocarditis">Endocardite Infecciosa</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="pfo" name="pfo">
+                                    <label for="pfo">Forame Oval Patente</label>
+                                </div>
+                                <div class="form-group checkbox-group" id="venous-thrombosis-group" style="display: none;">
+                                    <input type="checkbox" id="venous_thrombosis" name="venous_thrombosis">
+                                    <label for="venous_thrombosis">Trombose Venosa Concomitante</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Outras Causas -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-microscope"></i>
+                                Outras Etiologias
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="vasculitis" name="vasculitis">
+                                    <label for="vasculitis">Vasculite do SNC</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="thrombophilia" name="thrombophilia">
+                                    <label for="thrombophilia">Trombofilia com Trombo</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="other_definite_cause" name="other_definite_cause">
+                                    <label for="other_definite_cause">Outra Causa Determinada</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="other_probable_cause" name="other_probable_cause">
+                                    <label for="other_probable_cause">Outra Causa Provável</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dissecção -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-code-branch"></i>
+                                Dissecção Arterial
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="dissection" name="dissection">
+                                    <label for="dissection">Sinais Radiológicos de Dissecção</label>
+                                </div>
+                                <div class="form-group checkbox-group" id="dissection-history-group">
+                                    <input type="checkbox" id="dissection_history" name="dissection_history">
+                                    <label for="dissection_history">História Sugestiva de Dissecção</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-brain"></i>
+                            Analisar com IA
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Text Input Tab -->
+                <div id="text-tab" class="tab-pane">
+                    <form id="text-form" class="text-form">
+                        <div class="form-group">
+                            <label for="clinical-text">Descrição Clínica do Caso</label>
+                            <textarea id="clinical-text" name="clinical-text" rows="15" 
+                                placeholder="Cole aqui a descrição completa do caso clínico, incluindo história, exames físicos, achados de imagem, avaliação vascular e cardíaca..."></textarea>
+                        </div>
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-brain"></i>
+                            Analisar com IA
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="results-section" style="display: none;">
+                <h2 class="results-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    Resultados da Análise
+                </h2>
+                
+                <div class="results-grid">
+                    <!-- ASCOD Result Card -->
+                    <div class="result-card ascod-card">
+                        <div class="card-header">
+                            <h3>Classificação ASCOD</h3>
+                            <div class="classification-badge" id="ascod-badge">-</div>
+                        </div>
+                        <div class="card-body" id="ascod-details">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Processando...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TOAST Result Card -->
+                    <div class="result-card toast-card">
+                        <div class="card-header">
+                            <h3>Classificação TOAST</h3>
+                            <div class="classification-badge" id="toast-badge">-</div>
+                        </div>
+                        <div class="card-body" id="toast-details">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Processando...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Analysis -->
+                <div class="full-analysis">
+                    <h3>Análise Completa</h3>
+                    <div id="full-analysis-content" class="analysis-content"></div>
+                </div>
+
+                <button class="new-analysis-button" onclick="resetAnalysis()">
+                    <i class="fas fa-redo"></i>
+                    Nova Análise
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Classificador ASCOD/TOAST - Desenvolvido com IA Gemini</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
