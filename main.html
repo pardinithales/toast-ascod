@@ -480,7 +480,12 @@
             const promptText = generatePrompt(type);
             
             try {
-                const apiKey = "AIzaSyDxgqx1FeA-vK7rxkfcBhTOV0yy5kCjhrg"; // A chave será fornecida pelo ambiente
+                // NOTA: Para uso em produção, a chave da API deve ser fornecida pelo backend
+                // Este é apenas um exemplo para demonstração local
+                const apiKey = prompt("Digite sua chave da API Gemini (ou configure no backend):") || "";
+                if (!apiKey) {
+                    throw new Error("Chave da API não fornecida");
+                }
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const payload = {

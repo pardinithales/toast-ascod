@@ -10,9 +10,19 @@ import os
 import sys
 from dataclasses import asdict
 from ascod_classifier import ASCODClassifier, PatientData
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Carrega variáveis de ambiente
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Configuração da API Gemini usando variável de ambiente
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # Instância global do classificador
 classifier = ASCODClassifier()

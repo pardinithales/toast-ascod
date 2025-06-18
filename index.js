@@ -2,7 +2,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import readline from 'readline';
 
 // Configuração da API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'AIzaSyDxgqx1FeA-vK7rxkfcBhTOV0yy5kCjhrg');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+if (!process.env.GEMINI_API_KEY) {
+    console.warn('⚠️  AVISO: Variável de ambiente GEMINI_API_KEY não configurada!');
+    console.warn('   Configure a chave da API no arquivo .env ou como variável de ambiente.');
+}
 
 // Prompt completo do sistema ASCOD
 const ASCOD_SYSTEM_INSTRUCTION = `### **Prompt para Classificação de AVC Isquêmico com base no Fenótipo ASCOD**

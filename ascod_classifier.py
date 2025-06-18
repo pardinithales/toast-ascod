@@ -12,9 +12,16 @@ import requests
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 from enum import Enum
+from dotenv import load_dotenv
+
+# Carrega variáveis de ambiente
+load_dotenv()
 
 # Configuração da API Gemini
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyDxgqx1FeA-vK7rxkfcBhTOV0yy5kCjhrg')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+if not GEMINI_API_KEY:
+    print("⚠️  AVISO: Variável de ambiente GEMINI_API_KEY não configurada!")
+    print("   Configure a chave da API no arquivo .env ou como variável de ambiente.")
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
 
 # Prompt do sistema ASCOD
