@@ -237,6 +237,13 @@ O usuário (médico) fornecerá as informações do paciente de forma estruturad
 
 *   **Grau 0 (Ausente):** Use este grau **APENAS** quando o texto clínico afirmar explicitamente que os exames para uma determinada causa foram realizados e resultaram **negativos**. Ex: "A angio-TC de pescoço foi normal, sem sinais de dissecção" justifica D0. "A investigação de trombofilias foi negativa" justifica O0.
 *   **Grau 9 (Incompleto):** Use este grau se a informação para uma categoria simplesmente **NÃO ESTIVER PRESENTE** no resumo. A ausência de informação **NÃO** significa ausência de doença. Ex: Se o texto não menciona exames para dissecção ou outras causas, as notas devem ser D9 e O9.
+* REPITO: SE O USER NÃO FORNECER INFORMAÇÕES SOBRE UMA CATEGORIA, SEMPRE ASSUME QUE É GRAU 9!! ISSO É FUNDAMENTAL!!!!!!
+
+
+** ## REGRA SOBRE O ITEM "O" (Outras Causas) ** 
+se não foram mencionados outros achados de doença de pequenos vasos como leucoaraiose, espaços perivasculares alargados ou micro-hemorragias cerebrais --> sua função é classificiar como O9 também! Afinal, não for mencionado precisaria ser classificado como O9 e precisaria dos dados da ressonância magnética!!
+
+PORTANTO se não for mencionado tudo que precisa pra classificar, ele daria como 9
 
 --- CLASSIFICAÇÃO TOAST ---
 
@@ -408,7 +415,7 @@ class ASCODClassifier:
             raise ValueError("API key for Gemini not found. Please set the GEMINI_API_KEY environment variable.")
         genai.configure(api_key=self.api_key)
         # Modelo atualizado para gemini-2.5-pro conforme solicitado para maior precisão
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def analyze_with_ai(self, text):
         """
