@@ -270,140 +270,97 @@ Classifica-se aqui se uma das seguintes condições for atendida:
 
 @dataclass
 class PatientData:
-    """Estrutura para os dados do paciente, alinhada com o formulário completo."""
-    # Fatores de Risco Gerais (movidos para dentro de Aterosclerose/Pequenos Vasos se aplicável)
-    htn: bool = False
-    dm: bool = False
-    dlp: bool = False
-    smoker: bool = False
-
+    """Estrutura para os dados do paciente, alinhada com o formulário simplificado."""
     # A - Aterosclerose
-    stenosis: int = 0
+    stenosis: Optional[int] = 0
     a1_stenosis_lt_50_thrombus: bool = False
     a1_aortic_mobile_thrombus: bool = False
-    a1_occlusion_athero: bool = False
     a2_aortic_plaque_ge_4mm: bool = False
-    a3_aortic_plaque_lt_4mm: bool = False
-    a3_stenosis_contralateral: bool = False
     a3_history_mi_pad: bool = False
-    a3_stenosis_50_99_bihemispheric: bool = False
 
     # S - Doença de Pequenos Vasos
-    infarct_type: str = 'none'
+    infarct_type: str = 'none' # 'cortical_large' ou 'subcortical_small_lacunar'
     s1_lacunar_infarct_syndrome: bool = False
-    s1_lacunar_plus_older_infarcts: bool = False
     s1_lacunar_plus_severe_leuko: bool = False
-    s1_lacunar_plus_tias: bool = False
-    s2_single_recent_lacunar: bool = False
-    s2_lacunar_syndrome_no_lesion: bool = False
     s3_severe_leuko_isolated: bool = False
-    s3_microbleeds_isolated: bool = False
-    s3_perivascular_spaces_isolated: bool = False
-    s3_old_lacunar_infarcts_isolated: bool = False
     
     # C - Cardiopatia
     lvef: Optional[int] = None
-    c1_mitral_stenosis: bool = False
-    c1_mechanical_valve: bool = False
-    c1_mi_lt_4wks: bool = False
-    c1_mural_thrombus: bool = False
-    c1_lv_aneurysm: bool = False
     c1_afib_documented: bool = False
-    c1_sick_sinus: bool = False
-    c1_cardiomyopathy: bool = False
-    c1_endocarditis: bool = False
-    c1_intracardiac_mass: bool = False
-    c1_pfo_thrombus_in_situ: bool = False
+    c1_mechanical_valve: bool = False
+    c1_mural_thrombus: bool = False
     c1_pfo_pe_dvt: bool = False
     c2_pfo_asa: bool = False
-    c2_pfo_pe_dvt_not_preceding: bool = False
-    c2_spontaneous_echo_contrast: bool = False
-    c2_lv_akinesia_lvef_gt_35: bool = False
-    c2_multiple_infarcts_old_mi: bool = False
-    c2_multiple_infarcts_systemic_emboli: bool = False
     c3_pfo_isolated: bool = False
-    c3_asa_isolated: bool = False
-    c3_strands_isolated: bool = False
-    c3_mitral_annulus_calc: bool = False
-    c3_aortic_valve_calc: bool = False
-    c3_nonapical_akinesia: bool = False
-    c3_afib_lt_60s: bool = False
-    c3_atrial_hyperexcitability: bool = False
 
-    # O & D (já existentes)
-    o1_polycythemia: bool = False; o1_fabry: bool = False; o1_antiphospholipid: bool = False; o1_meningitis: bool = False; o1_sickle_cell: bool = False; o1_hyperhomocysteinemia: bool = False; o1_moyamoya: bool = False; o1_other_angiitis: bool = False; o2_aneurysm: bool = False; o2_migraine: bool = False; o3_avm: bool = False; o3_thrombocytosis: bool = False; o3_antiphospholipid_low: bool = False; o3_homocysteinemia_low: bool = False; o3_malignancy: bool = False
-    d1_direct: bool = False; d1_indirect: bool = False; d2_weak_evidence: bool = False; d2_fibromuscular: bool = False; d3_kinking: bool = False; d3_fibromuscular_other: bool = False
+    # O - Outras Causas
+    o1_antiphospholipid: bool = False
+    o1_other_angiitis: bool = False
+    o3_malignancy: bool = False
+    
+    # D - Dissecção
+    d1_direct: bool = False
+    d2_weak_evidence: bool = False
 
     def to_natural_language(self):
+        """Gera um texto em linguagem natural a partir dos dados estruturados."""
         parts = []
-        # Aterosclerose
+
+        # Aterosclerose (A)
         a_parts = []
-        if self.stenosis >= 50: a_parts.append(f"Estenose ipsilateral de {self.stenosis}% (A1)")
-        if self.a1_stenosis_lt_50_thrombus: a_parts.append("Estenose <50% com trombo (A1)")
-        if self.a1_aortic_mobile_thrombus: a_parts.append("Trombo móvel aórtico (A1)")
-        if self.a1_occlusion_athero: a_parts.append("Oclusão com placa aterosclerótica (A1)")
-        if self.stenosis >= 30 and self.stenosis < 50: a_parts.append(f"Estenose ipsilateral de {self.stenosis}% (A2)")
-        if self.a2_aortic_plaque_ge_4mm: a_parts.append("Placa aórtica >=4mm (A2)")
-        if self.stenosis > 0 and self.stenosis < 30: a_parts.append(f"Estenose ipsilateral de {self.stenosis}% (A3)")
-        if self.a3_aortic_plaque_lt_4mm: a_parts.append("Placa aórtica <4mm (A3)")
-        if self.a3_stenosis_contralateral: a_parts.append("Estenose contralateral/não relacionada (A3)")
-        if self.a3_history_mi_pad: a_parts.append("História de IAM/DAP (A3)")
-        if self.a3_stenosis_50_99_bihemispheric: a_parts.append("Estenose 50-99% com lesões bi-hemisféricas (A3)")
-        if a_parts: parts.append(f"Aterosclerose (A): {'; '.join(a_parts)}.")
-
-        # Doença de Pequenos Vasos
-        s_parts = []
-        if self.infarct_type == 'subcortical_small_lacunar': s_parts.append("Infarto lacunar (<1.5cm)")
-        if self.s1_lacunar_infarct_syndrome: s_parts.append("com síndrome lacunar clássica (S1)")
-        if self.s1_lacunar_plus_older_infarcts: s_parts.append("com lacunares antigos (S1)")
-        if self.s1_lacunar_plus_severe_leuko: s_parts.append("com leucoaraiose grave (S1)")
-        if self.s1_lacunar_plus_tias: s_parts.append("com TIAs no território (S1)")
-        if self.s2_single_recent_lacunar: s_parts.append("Infarto lacunar recente isolado (S2)")
-        if self.s2_lacunar_syndrome_no_lesion: s_parts.append("Síndrome lacunar sem lesão (S2)")
-        if self.s3_severe_leuko_isolated: s_parts.append("Leucoaraiose grave isolada (S3)")
-        if self.s3_microbleeds_isolated: s_parts.append("Microbleeds isolados (S3)")
-        if self.s3_perivascular_spaces_isolated: s_parts.append("Espaços perivasculares dilatados (S3)")
-        if self.s3_old_lacunar_infarcts_isolated: s_parts.append("Lacunares antigos isolados (S3)")
-        if s_parts: parts.append(f"Pequenos Vasos (S): {', '.join(s_parts)}.")
-
-        # Cardiopatia
-        c_parts = []
-        if self.c1_mitral_stenosis: c_parts.append("Estenose mitral (C1)")
-        if self.c1_mechanical_valve: c_parts.append("Valva mecânica (C1)")
-        if self.c1_mi_lt_4wks: c_parts.append("IAM < 4s (C1)")
-        if self.c1_mural_thrombus: c_parts.append("Trombo mural (C1)")
-        if self.c1_lv_aneurysm: c_parts.append("Aneurisma VE (C1)")
-        if self.c1_afib_documented: c_parts.append("FA/Flutter >60s (C1)")
-        if self.c1_sick_sinus: c_parts.append("Doença nó sinusal (C1)")
-        if self.c1_cardiomyopathy: c_parts.append("Cardiomiopatia (C1)")
-        if self.lvef and self.lvef < 35: c_parts.append(f"FEVE < 35% (C1)")
-        if self.c1_endocarditis: c_parts.append("Endocardite (C1)")
-        if self.c1_intracardiac_mass: c_parts.append("Massa cardíaca (C1)")
-        if self.c1_pfo_thrombus_in_situ: c_parts.append("FOP com trombo in situ (C1)")
-        if self.c1_pfo_pe_dvt: c_parts.append("FOP com TEP/TVP precedente (C1)")
-        if self.c2_pfo_asa: c_parts.append("FOP+ASA (C2)")
-        if self.c2_pfo_pe_dvt_not_preceding: c_parts.append("FOP+TEP/TVP não precedente (C2)")
-        if self.c2_spontaneous_echo_contrast: c_parts.append("Contraste espontâneo AE (C2)")
-        if self.c2_lv_akinesia_lvef_gt_35: c_parts.append("Acinesia apical com FEVE >35% (C2)")
-        if self.c2_multiple_infarcts_old_mi: c_parts.append("Múltiplos infartos e hist de IAM (C2)")
-        if self.c2_multiple_infarcts_systemic_emboli: c_parts.append("Múltiplos infartos e embolia sistêmica (C2)")
-        if self.c3_pfo_isolated: c_parts.append("FOP isolado (C3)")
-        if self.c3_asa_isolated: c_parts.append("ASA isolado (C3)")
-        if self.c3_strands_isolated: c_parts.append("Strands valvares (C3)")
-        if self.c3_mitral_annulus_calc: c_parts.append("Calcificação anel mitral (C3)")
-        if self.c3_aortic_valve_calc: c_parts.append("Calcificação valva aórtica (C3)")
-        if self.c3_nonapical_akinesia: c_parts.append("Acinesia não-apical (C3)")
-        if self.c3_afib_lt_60s: c_parts.append("FA <60s (C3)")
-        if self.c3_atrial_hyperexcitability: c_parts.append("Hiperexcitabilidade atrial (C3)")
-        if c_parts: parts.append(f"Cardiopatia (C): {'; '.join(c_parts)}.")
-
-        # Outras Causas & Dissecção (lógica anterior mantida e abreviada)
-        o_parts = [d for f, d in [(self.o1_polycythemia, "Policitemia(O1)"), (self.o1_fabry, "Fabry(O1)")] if f] # Exemplo
-        if o_parts: parts.append(f"Outras: {', '.join(o_parts)}.")
-        d_parts = [d for f, d in [(self.d1_direct, "Dissecção Direta(D1)"), (self.d2_weak_evidence, "Dissecção Fraca(D2)")] if f] # Exemplo
-        if d_parts: parts.append(f"Dissecção: {', '.join(d_parts)}.")
+        if self.stenosis is not None:
+            if self.stenosis >= 50:
+                a_parts.append(f"Estenose arterial ipsilateral de {self.stenosis}% (sugestivo de A1)")
+            elif 30 <= self.stenosis < 50:
+                a_parts.append(f"Estenose arterial ipsilateral de {self.stenosis}% (sugestivo de A2)")
+            elif self.stenosis > 0:
+                 a_parts.append(f"Estenose arterial ipsilateral de {self.stenosis}% (sugestivo de A3)")
         
-        return " ".join(parts)
+        if self.a1_stenosis_lt_50_thrombus: a_parts.append("Estenose <50% com trombo luminal (A1)")
+        if self.a1_aortic_mobile_thrombus: a_parts.append("Trombo móvel no arco aórtico (A1)")
+        if self.a2_aortic_plaque_ge_4mm: a_parts.append("Placa aórtica >=4mm sem componente móvel (A2)")
+        if self.a3_history_mi_pad: a_parts.append("História de IAM ou Doença Arterial Periférica (A3)")
+        if a_parts: parts.append(f"Aterosclerose: {'; '.join(a_parts)}.")
+
+        # Doença de Pequenos Vasos (S)
+        s_parts = []
+        if self.infarct_type == 'subcortical_small_lacunar':
+            s_parts.append("Infarto subcortical lacunar <1.5cm (sugestivo de S1)")
+        if self.infarct_type == 'cortical_large':
+             s_parts.append("Infarto cortical ou >1.5cm (geralmente não relacionado a pequenos vasos)")
+        if self.s1_lacunar_infarct_syndrome: s_parts.append("Síndrome lacunar clínica clássica (S1)")
+        if self.s1_lacunar_plus_severe_leuko: s_parts.append("Associado a leucoaraiose grave / Fazekas III (S1)")
+        if self.s3_severe_leuko_isolated: s_parts.append("Leucoaraiose grave isolada (S3)")
+        if s_parts: parts.append(f"Pequenos Vasos: {'; '.join(s_parts)}.")
+
+        # Cardiopatia (C)
+        c_parts = []
+        if self.lvef is not None and self.lvef < 35:
+            c_parts.append(f"Fração de Ejeção de {self.lvef}% (sugestivo de C1)")
+        if self.c1_afib_documented: c_parts.append("FA/Flutter documentado (C1)")
+        if self.c1_mechanical_valve: c_parts.append("Prótese valvar mecânica (C1)")
+        if self.c1_mural_thrombus: c_parts.append("Trombo mural em cavidades esquerdas (C1)")
+        if self.c1_pfo_pe_dvt: c_parts.append("FOP com TEP/TVP prévio (C1)")
+        if self.c2_pfo_asa: c_parts.append("FOP com Aneurisma de Septo Atrial (C2)")
+        if self.c3_pfo_isolated: c_parts.append("FOP isolado (C3)")
+        if c_parts: parts.append(f"Cardiopatia: {'; '.join(c_parts)}.")
+
+        # Outras Causas (O)
+        o_parts = []
+        if self.o1_antiphospholipid: o_parts.append("Sd. Antifosfolípide (O1)")
+        if self.o1_other_angiitis: o_parts.append("Vasculite / Angiite (O1)")
+        if self.o3_malignancy: o_parts.append("Malignidade com hipercoagulação (O3)")
+        if o_parts: parts.append(f"Outras Causas: {'; '.join(o_parts)}.")
+
+        # Dissecção (D)
+        d_parts = []
+        if self.d1_direct: d_parts.append("Demonstração direta de hematoma mural (D1)")
+        if self.d2_weak_evidence: d_parts.append("Evidência fraca de dissecção (clínica, Horner) (D2)")
+        if d_parts: parts.append(f"Dissecção: {'; '.join(d_parts)}.")
+        
+        if not parts:
+            return "Nenhuma informação clínica fornecida."
+        return "Resumo clínico do paciente: " + " ".join(parts)
 
 
 class ASCODClassifier:
@@ -446,7 +403,7 @@ if __name__ == '__main__':
         sys.exit(0)
     except Exception as e:
         print(f'\nErro inesperado: {e}')
-        sys.exit(1)
+        sys.exit(1) 
 
 app = Flask(__name__)
 CORS(app)
