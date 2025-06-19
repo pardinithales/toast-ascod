@@ -300,6 +300,10 @@ class PatientData:
     # O - Outras Causas
     o1_antiphospholipid: bool = False
     o1_other_angiitis: bool = False
+    o1_thrombophilia: bool = False    # Adicionado
+    o1_hematologic: bool = False      # Adicionado (Policitemia, Trombocitemia)
+    o1_moyamoya: bool = False         # Adicionado
+    o2_migraine_with_aura: bool = False # Adicionado
     o3_malignancy: bool = False
     
     # D - Dissecção
@@ -360,7 +364,11 @@ class PatientData:
         # Outras Causas (O)
         o_parts = []
         if self.o1_antiphospholipid: o_parts.append("Sd. Antifosfolípide (O1)")
-        if self.o1_other_angiitis: o_parts.append("Vasculite / Angiite (O1)")
+        if self.o1_other_angiitis: o_parts.append("Vasculite / Angiite do SNC (O1)")
+        if self.o1_thrombophilia: o_parts.append("Trombofilia com trombose ativa (O1)")
+        if self.o1_hematologic: o_parts.append("Doença hematológica (Policitemia/Trombocitemia) (O1)")
+        if self.o1_moyamoya: o_parts.append("Doença de Moyamoya (O1)")
+        if self.o2_migraine_with_aura: o_parts.append("Enxaqueca com aura e déficit prolongado (O2)")
         if self.o3_malignancy: o_parts.append("Malignidade com hipercoagulação (O3)")
         if o_parts: parts.append(f"Outras Causas: {'; '.join(o_parts)}.")
 
