@@ -54,10 +54,18 @@ def analyze():
             known_fields = {f.name for f in fields(PatientData)}
             patient_data_args = {k: v for k, v in data.items() if k in known_fields}
             
-            # Converte valores numéricos que podem vir como strings vazias
+            # Converte valores numéricos que podem vir como strings
             for field in ['stenosis', 'lvef']:
-                if field in patient_data_args and patient_data_args[field] == '':
-                    patient_data_args[field] = None
+                if field in patient_data_args:
+                    value = patient_data_args[field]
+                    if value is None or value == '':
+                        patient_data_args[field] = None
+                    else:
+                        try:
+                            patient_data_args[field] = int(value)
+                        except (ValueError, TypeError):
+                            # Se a conversão falhar, define como None para evitar erros
+                            patient_data_args[field] = None
             
             patient_data = PatientData(**patient_data_args)
             clinical_text = patient_data.to_natural_language()
