@@ -239,25 +239,21 @@ function displayResults(result) {
     document.getElementById('ascod-badge').textContent = result.ascod_code || 'N/A';
     document.getElementById('toast-badge').textContent = result.toast_code || 'N/A';
     
-    const analysis = result.result; // This is the AI's response object
-
     // Display ASCOD Justifications
     let ascodHtml = '';
-    if (analysis && analysis.ascod) {
+    if (result.ascod) {
         const ascodOrder = ['A', 'S', 'C', 'O', 'D'];
         const ascodNames = { A: 'Aterosclerose', S: 'Pequenos Vasos', C: 'Cardiopatia', O: 'Outras Causas', D: 'Dissecção' };
         
         ascodHtml = ascodOrder.map(key => {
-            const item = analysis.ascod[key];
+            const item = result.ascod[key];
             if (!item) return '';
+            
             return `
                 <div class="justification-item">
-                    <div class="justification-header">
-                        <span class="component-key">${key}</span>
-                        <span class="component-grade grade-${item.grade}">${item.grade}</span>
-                        <span class="component-name">${ascodNames[key]}</span>
-                    </div>
-                    <p class="justification-text">${item.justification}</p>
+                    <span class="justification-category">${key} (${ascodNames[key]}):</span>
+                    <span class="justification-grade">Grau ${item.grade || 'N/A'}</span>
+                    <p class="justification-text">${item.justification || 'Justificativa não fornecida.'}</p>
                 </div>
             `;
         }).join('');
@@ -268,21 +264,26 @@ function displayResults(result) {
 
     // Display TOAST Justification
     let toastHtml = '';
-    if (analysis && analysis.toast) {
-        toastHtml = `
-            <div class="justification-item toast-justification">
-                <strong>${result.toast_code}</strong>
-                <p class="justification-text">${analysis.toast.justification}</p>
-            </div>
-        `;
+    if (result.toast && result.toast.justification) {
+        toastHtml = `<p>${result.toast.justification}</p>`;
     } else {
         toastHtml = '<p>Justificativa TOAST não disponível.</p>';
     }
     document.getElementById('toast-details').innerHTML = toastHtml;
 
-    // Display original clinical text for full analysis
-    let fullAnalysisHtml = `<h4>Texto Enviado para Análise</h4><p class="analysis-prompt">${result.clinical_text || 'N/A'}</p>`;
-    document.getElementById('full-analysis-content').innerHTML = fullAnalysisHtml;
+    // Display Full Analysis / Sent Text
+    const fullAnalysisContent = document.getElementById('full-analysis-content');
+    if (result.natural_language_prompt) {
+        fullAnalysisContent.innerHTML = `
+            <h4>Texto Enviado para Análise</h4>
+            <p>${result.natural_language_prompt}</p>
+        `;
+    } else {
+        fullAnalysisContent.innerHTML = `
+            <h4>Texto Enviado para Análise</h4>
+            <p>N/A</p>
+        `;
+    }
 }
 
 function showError(message) {
