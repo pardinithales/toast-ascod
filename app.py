@@ -14,6 +14,7 @@ from dataclasses import fields
 from ascod_classifier import ASCODClassifier, PatientData
 import google.generativeai as genai
 from dotenv import load_dotenv
+from typing import Optional
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -21,10 +22,17 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Configuração da API Gemini usando variável de ambiente
+# Carrega a chave da API e inicializa o classificador
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+if not GEMINI_API_KEY:
+    print("AVISO: Chave da API Gemini não encontrada. A análise por IA estará desabilitada.")
+    classifier = None
+else:
+    try:
+        classifier = ASCODClassifier(api_key=GEMINI_API_KEY)
+    except Exception as e:
+        print(f"Erro ao inicializar o classificador: {e}")
+        classifier = None
 
 def get_classifier():
     """Cria uma instância do classificador por request."""
@@ -39,74 +47,83 @@ def index():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
-    """Endpoint para análise com IA"""
+    if not classifier:
+        return jsonify({'success': False, 'error': 'Classificador de IA não inicializado. Verifique a chave da API.'}), 500
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'Requisição inválida.'}), 400
+
+    analysis_input = ""
+    natural_language_prompt = ""
+
+    if data.get('type') == 'structured':
+        # Remove o 'type' para não passar para o dataclass
+        form_data = data.copy()
+        form_data.pop('type', None)
+        
+        # Converte os valores para os tipos corretos
+        for field in fields(PatientData):
+            if field.name in form_data:
+                # Converte strings de números para int
+                if field.type == Optional[int] and isinstance(form_data[field.name], str):
+                    try:
+                        form_data[field.name] = int(form_data[field.name])
+                    except (ValueError, TypeError):
+                        form_data[field.name] = None
+                # Garante que os booleanos sejam booleanos
+                elif field.type == bool:
+                    form_data[field.name] = str(form_data[field.name]).lower() in ['true', '1', 'on']
+
+        try:
+            patient_data = PatientData(**form_data)
+            natural_language_prompt = patient_data.to_natural_language()
+            analysis_input = natural_language_prompt
+        except TypeError as e:
+            return jsonify({'success': False, 'error': f'Dados do formulário inválidos: {e}'}), 400
+
+    elif data.get('type') == 'text':
+        analysis_input = data.get('text', '')
+        natural_language_prompt = analysis_input
+    
+    else:
+        return jsonify({'success': False, 'error': 'Tipo de análise inválido.'}), 400
+
+    if not analysis_input:
+        return jsonify({'success': False, 'error': 'Nenhuma informação para análise.'}), 400
+
     try:
-        data = request.json
-        classifier = get_classifier()
+        # A resposta da IA já é uma string JSON
+        ai_response_str = classifier.analyze_with_ai(analysis_input)
+        ai_result = json.loads(ai_response_str)
+
+        # Constrói o código ASCOD e TOAST
+        ascod_code = "N/A"
+        toast_code = "N/A"
+
+        if 'ascod' in ai_result:
+            ascod_grades = [ai_result['ascod'].get(cat, {}).get('grade', '9') for cat in ['A', 'S', 'C', 'O', 'D']]
+            ascod_code = '-'.join(map(str, ascod_grades))
+
+        if 'toast' in ai_result:
+            toast_code = ai_result['toast'].get('classification', 'Indeterminado')
+
+
+        # Monta a resposta final, mesclando o resultado da IA
+        final_response = {
+            'success': True,
+            'ascod_code': ascod_code,
+            'toast_code': toast_code,
+            'natural_language_prompt': natural_language_prompt,
+            **ai_result  # Mescla o dicionário da IA na resposta principal
+        }
         
-        if data.get('type') == 'text':
-            clinical_text = data.get('text', '')
-            if not clinical_text:
-                return jsonify({'error': 'Texto clínico não fornecido'}), 400
-            result_json_str = classifier.analyze_with_ai(clinical_text)
-        
-        elif data.get('type') == 'structured':
-            known_fields = {f.name for f in fields(PatientData)}
-            patient_data_args = {k: v for k, v in data.items() if k in known_fields}
-            
-            # Converte valores numéricos que podem vir como strings
-            for field in ['stenosis', 'lvef']:
-                if field in patient_data_args:
-                    value = patient_data_args[field]
-                    if value is None or value == '':
-                        patient_data_args[field] = None
-                    else:
-                        try:
-                            patient_data_args[field] = int(value)
-                        except (ValueError, TypeError):
-                            # Se a conversão falhar, define como None para evitar erros
-                            patient_data_args[field] = None
-            
-            patient_data = PatientData(**patient_data_args)
-            clinical_text = patient_data.to_natural_language()
-            result_json_str = classifier.analyze_with_ai(clinical_text)
-            
-        else:
-            return jsonify({'error': 'Tipo de análise não especificado'}), 400
-        
-        if result_json_str:
-            # Tenta carregar o JSON
-            result_data = json.loads(result_json_str)
+        return jsonify(final_response)
 
-            # VERIFICAÇÃO DE ROBUSTEZ: Garante que a resposta da IA tem a estrutura esperada
-            if 'ascod' not in result_data or 'toast' not in result_data:
-                error_message = "A resposta da IA está mal formatada."
-                if 'error' in result_data:
-                    error_message = f"Erro da IA: {result_data.get('details', result_data['error'])}"
-                elif 'message' in result_data: # Outro formato de erro comum
-                    error_message = f"Erro da IA: {result_data['message']}"
-
-                return jsonify({'error': error_message, 'raw_response': result_data}), 500
-
-            # Extrai os códigos com segurança
-            ascod_grades = [str(result_data['ascod'][letter]['grade']) for letter in 'ASCOD']
-            ascod_code = f"A{ascod_grades[0]}-S{ascod_grades[1]}-C{ascod_grades[2]}-O{ascod_grades[3]}-D{ascod_grades[4]}"
-            toast_code = f"TOAST {result_data['toast']['classification']}"
-
-            return jsonify({
-                'success': True,
-                'result': result_data, # Envia o objeto JSON parseado
-                'ascod_code': ascod_code,
-                'toast_code': toast_code,
-                'clinical_text': clinical_text
-            })
-        else:
-            return jsonify({'error': 'Falha na análise com IA'}), 500
-            
     except json.JSONDecodeError:
-        return jsonify({'error': 'A resposta da IA não é um JSON válido.', 'raw_response': result_json_str}), 500
+        return jsonify({'success': False, 'error': 'Falha ao decodificar a resposta da IA. Resposta recebida: ' + ai_response_str}), 500
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'error': f'Erro inesperado durante a análise: {str(e)}'}), 500
 
 if __name__ == '__main__':
     # Cria diretório templates se não existir
