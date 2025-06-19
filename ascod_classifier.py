@@ -8,6 +8,7 @@ Versão Python com integração Google Gemini
 import os
 import sys
 import json
+import time
 import requests
 from dataclasses import dataclass, asdict, fields
 from typing import Dict, List, Optional, Tuple
@@ -421,9 +422,13 @@ class ASCODClassifier:
         """
         Analisa o texto clínico e retorna a classificação em formato JSON.
         """
+        # Adiciona um comentário com o timestamp atual para evitar cache
+        cache_buster = f"<!-- Cache buster: {time.time()} -->"
+
         # Prompt otimizado que inclui as instruções completas do sistema e o resumo do paciente.
         prompt = f"""
         {ASCOD_SYSTEM_INSTRUCTION}
+        {cache_buster}
 
         **## Dados do Paciente para Análise**
 
