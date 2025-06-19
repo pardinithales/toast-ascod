@@ -32,11 +32,9 @@ function setupEventListeners() {
     textForm.addEventListener('submit', handleTextSubmit);
 
     // Range input
-    stenosisRange.addEventListener('input', updateRangeValue);
-
-    // Conditional fields
-    pfoCheckbox.addEventListener('change', toggleVenousThrombosis);
-    dissectionCheckbox.addEventListener('change', toggleDissectionHistory);
+    if (stenosisRange) {
+        stenosisRange.addEventListener('input', updateRangeValue);
+    }
 }
 
 // Tab Switching
@@ -56,21 +54,8 @@ function switchTab(tab) {
 
 // Range Value Update
 function updateRangeValue() {
-    rangeValue.textContent = `${stenosisRange.value}%`;
-}
-
-// Conditional Field Toggles
-function toggleVenousThrombosis() {
-    venousThrombosisGroup.style.display = pfoCheckbox.checked ? 'flex' : 'none';
-    if (!pfoCheckbox.checked) {
-        document.getElementById('venous_thrombosis').checked = false;
-    }
-}
-
-function toggleDissectionHistory() {
-    dissectionHistoryGroup.style.display = dissectionCheckbox.checked ? 'none' : 'flex';
-    if (dissectionCheckbox.checked) {
-        document.getElementById('dissection_history').checked = false;
+    if (stenosisRange && rangeValue) {
+        rangeValue.textContent = `${stenosisRange.value}%`;
     }
 }
 
@@ -79,31 +64,33 @@ async function handleStructuredSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(structuredForm);
-    const data = {
-        type: 'structured',
-        htn: formData.get('htn') === 'on',
-        dm: formData.get('dm') === 'on',
-        dlp: formData.get('dlp') === 'on',
-        smoker: formData.get('smoker') === 'on',
-        stenosis: parseInt(formData.get('stenosis') || 0),
-        infarct_type: formData.get('infarct_type'),
-        leukoaraiosis: formData.get('leukoaraiosis') === 'on',
-        afib: formData.get('afib') === 'on',
-        mech_valve: formData.get('mech_valve') === 'on',
-        recent_mi: formData.get('recent_mi') === 'on',
-        lvef: formData.get('lvef') ? parseInt(formData.get('lvef')) : null,
-        thrombus: formData.get('thrombus') === 'on',
-        endocarditis: formData.get('endocarditis') === 'on',
-        pfo: formData.get('pfo') === 'on',
-        venous_thrombosis: formData.get('venous_thrombosis') === 'on',
-        vasculitis: formData.get('vasculitis') === 'on',
-        thrombophilia: formData.get('thrombophilia') === 'on',
-        other_definite_cause: formData.get('other_definite_cause') === 'on',
-        other_probable_cause: formData.get('other_probable_cause') === 'on',
-        dissection: formData.get('dissection') === 'on',
-        dissection_history: formData.get('dissection_history') === 'on'
-    };
-    
+    const data = { type: 'structured' };
+
+    // Itera sobre todos os campos do formulário para construir o objeto de dados
+    for (const [key, value] of formData.entries()) {
+        const element = document.getElementsByName(key)[0];
+        
+        if (element.type === 'checkbox') {
+            // Para checkboxes, o valor só é incluído se estiver marcado.
+            // O FormData já faz isso, mas garantimos o tipo booleano.
+            data[key] = true;
+        } else if (element.type === 'number' || element.type === 'range') {
+            // Converte para número, tratando campo vazio como nulo.
+            data[key] = value ? parseInt(value, 10) : null;
+        } else {
+            // Para outros tipos (text, select-one), usa o valor diretamente.
+            data[key] = value;
+        }
+    }
+
+    // Como o FormData só inclui checkboxes marcados, precisamos adicionar os desmarcados como 'false'.
+    const checkboxes = structuredForm.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        if (!data.hasOwnProperty(cb.name)) {
+            data[cb.name] = false;
+        }
+    });
+
     await submitAnalysis(data);
 }
 
