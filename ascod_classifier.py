@@ -268,7 +268,7 @@ Classifica-se aqui se uma das seguintes condições for atendida:
 
 @dataclass
 class PatientData:
-    """Estrutura para os dados do paciente, alinhada com o formulário simplificado."""
+    """Estrutura para os dados do paciente, alinhada com o formulário completo e revisado."""
     # A - Aterosclerose
     stenosis: Optional[int] = 0
     a1_stenosis_lt_50_thrombus: bool = False
@@ -277,7 +277,8 @@ class PatientData:
     a3_history_mi_pad: bool = False
 
     # S - Doença de Pequenos Vasos
-    infarct_type: str = 'none' # 'cortical_large' ou 'subcortical_small_lacunar'
+    infarct_type: str = 'none'
+    s_has_htn_or_dm: bool = False # Adicionado para critério S1
     s1_lacunar_infarct_syndrome: bool = False
     s1_lacunar_plus_severe_leuko: bool = False
     s3_severe_leuko_isolated: bool = False
@@ -287,6 +288,11 @@ class PatientData:
     c1_afib_documented: bool = False
     c1_mechanical_valve: bool = False
     c1_mural_thrombus: bool = False
+    c1_recent_mi: bool = False # Adicionado: IAM < 3 meses
+    c1_infective_endocarditis: bool = False # Adicionado
+    c1_cardiomyopathy: bool = False # Adicionado
+    c1_intracardiac_mass: bool = False # Adicionado
+    c1_mitral_stenosis: bool = False # Adicionado
     c1_pfo_pe_dvt: bool = False
     c2_pfo_asa: bool = False
     c3_pfo_isolated: bool = False
@@ -324,9 +330,12 @@ class PatientData:
         s_parts = []
         if self.infarct_type == 'subcortical_small_lacunar':
             s_parts.append("Infarto subcortical lacunar <1.5cm (sugestivo de S1)")
-        if self.infarct_type == 'cortical_large':
+            if self.s_has_htn_or_dm:
+                s_parts.append("em paciente com HAS ou DM")
+        elif self.infarct_type == 'cortical_large':
              s_parts.append("Infarto cortical ou >1.5cm (geralmente não relacionado a pequenos vasos)")
-        if self.s1_lacunar_infarct_syndrome: s_parts.append("Síndrome lacunar clínica clássica (S1)")
+        
+        if self.s1_lacunar_infarct_syndrome: s_parts.append("Apresentou síndrome lacunar clínica clássica (S1)")
         if self.s1_lacunar_plus_severe_leuko: s_parts.append("Associado a leucoaraiose grave / Fazekas III (S1)")
         if self.s3_severe_leuko_isolated: s_parts.append("Leucoaraiose grave isolada (S3)")
         if s_parts: parts.append(f"Pequenos Vasos: {'; '.join(s_parts)}.")
@@ -338,6 +347,11 @@ class PatientData:
         if self.c1_afib_documented: c_parts.append("FA/Flutter documentado (C1)")
         if self.c1_mechanical_valve: c_parts.append("Prótese valvar mecânica (C1)")
         if self.c1_mural_thrombus: c_parts.append("Trombo mural em cavidades esquerdas (C1)")
+        if self.c1_recent_mi: c_parts.append("Infarto do Miocárdio recente < 3 meses (C1)")
+        if self.c1_infective_endocarditis: c_parts.append("Endocardite infecciosa (C1)")
+        if self.c1_cardiomyopathy: c_parts.append("Cardiomiopatia dilatada (C1)")
+        if self.c1_intracardiac_mass: c_parts.append("Massa intracardíaca, como mixoma (C1)")
+        if self.c1_mitral_stenosis: c_parts.append("Estenose mitral reumática (C1)")
         if self.c1_pfo_pe_dvt: c_parts.append("FOP com TEP/TVP prévio (C1)")
         if self.c2_pfo_asa: c_parts.append("FOP com Aneurisma de Septo Atrial (C2)")
         if self.c3_pfo_isolated: c_parts.append("FOP isolado (C3)")

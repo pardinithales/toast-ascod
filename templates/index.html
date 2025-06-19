@@ -48,8 +48,8 @@
                                 <div class="form-group">
                                     <label for="stenosis">Estenose Arterial Ipsilateral Relevante</label>
                                     <div class="range-input">
-                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="0">
-                                        <span class="range-value">0%</span>
+                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="75">
+                                        <span class="range-value">75%</span>
                                     </div>
                                     <small>A estenose é o principal indicador para A1, A2 e A3.</small>
                                 </div>
@@ -81,8 +81,12 @@
                                     <select id="infarct_type" name="infarct_type">
                                         <option value="none">Não especificado</option>
                                         <option value="cortical_large">Cortical ou >1.5cm (Geralmente não é de pequenos vasos)</option>
-                                        <option value="subcortical_small_lacunar">Subcortical lacunar &lt;1.5cm (Sugestivo de S1)</option>
+                                        <option value="subcortical_small_lacunar" selected>Subcortical lacunar &lt;1.5cm (Sugestivo de S1)</option>
                                     </select>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="s_has_htn_or_dm" name="s_has_htn_or_dm" checked>
+                                    <label for="s_has_htn_or_dm">Paciente com HAS ou DM (S1)</label>
                                 </div>
                                 <div class="form-group checkbox-group">
                                     <input type="checkbox" id="s1_lacunar_infarct_syndrome" name="s1_lacunar_infarct_syndrome">
@@ -105,11 +109,11 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="lvef">Fração de Ejeção do VE (%)</label>
-                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="Ex: 55">
-                                    <small>FEVE &lt;35% é um critério C1.</small>
+                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="Ex: 55" value="40">
+                                    <small>FEVE &lt;30% é um critério C1.</small>
                                 </div>
                                 <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="c1_afib_documented" name="c1_afib_documented">
+                                    <input type="checkbox" id="c1_afib_documented" name="c1_afib_documented" checked>
                                     <label for="c1_afib_documented">FA/Flutter documentado (>60s) (C1)</label>
                                 </div>
                                 <div class="form-group checkbox-group">
@@ -119,6 +123,26 @@
                                 <div class="form-group checkbox-group">
                                     <input type="checkbox" id="c1_mural_thrombus" name="c1_mural_thrombus">
                                     <label for="c1_mural_thrombus">Trombo mural em cavidades esquerdas (C1)</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="c1_recent_mi" name="c1_recent_mi">
+                                    <label for="c1_recent_mi">IAM recente (<3 meses) (C1)</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="c1_mitral_stenosis" name="c1_mitral_stenosis">
+                                    <label for="c1_mitral_stenosis">Estenose Mitral Reumática (C1)</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="c1_infective_endocarditis" name="c1_infective_endocarditis">
+                                    <label for="c1_infective_endocarditis">Endocardite Infecciosa (C1)</label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="c1_cardiomyopathy" name="c1_cardiomyopathy">
+                                    <label for="c1_cardiomyopathy">Cardiomiopatia Dilatada (C1)</label>
+                                </div>
+                                 <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="c1_intracardiac_mass" name="c1_intracardiac_mass">
+                                    <label for="c1_intracardiac_mass">Massa Intracardíaca (Mixoma, etc.) (C1)</label>
                                 </div>
                                 <div class="form-group checkbox-group">
                                     <input type="checkbox" id="c1_pfo_pe_dvt" name="c1_pfo_pe_dvt">
