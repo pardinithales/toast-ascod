@@ -23,7 +23,7 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
     print("⚠️  AVISO: Variável de ambiente GEMINI_API_KEY não configurada!")
     print("   Configure a chave da API no arquivo .env ou como variável de ambiente.")
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
+# A URL da API é gerenciada pela biblioteca google-generativeai, então a construção manual foi removida.
 
 # Prompt do sistema ASCOD
 ASCOD_SYSTEM_INSTRUCTION = """### **Prompt para Classificação de AVC Isquêmico com base no Fenótipo ASCOD**
@@ -187,7 +187,7 @@ O usuário (médico) fornecerá as informações do paciente de forma estruturad
 *   **Apresentação Clínica:** Descrição do déficit neurológico (ex: hemiparesia, afasia), modo de instalação (súbito, progressivo).
 *   **Imagem Cerebral (TC/RM):** Localização e tamanho do(s) infarto(s) (cortical, subcortical, >1,5 cm, <1,5 cm, lacunar), presença de leucoaraiose, micro-hemorragias.
 *   **Avaliação Vascular (Doppler de carótidas/vertebrais, DTC, Angio-TC, Angio-RM):** Grau de estenose em artérias extracranianas e intracranianas, presença de placas (ulceradas, complexas), sinais de dissecção (hematoma intramural, flap intimal), achados no arco aórtico.
-*   **Avaliação Cardíaca (ECG, Holter 24h, Ecocardiograma Transtorácico/Transesofágico):** Ritmo cardíaco (sinusal, FA), função e dimensões de câmaras cardíacas, presença de trombo intracavitário, FOP, ASA, doença valvar.
+*   **Avaliação Cardíaca (ECG, Holter 24h, Ecocardiograma Transtorácico/Transesofágico):** Ritmo cardíaco (sinusal, FA), função e dimensões de câmaras cardíacas (ex: diâmetro do átrio esquerdo, fração de ejeção), presença de trombo intracavitário, FOP, ASA, doença valvar.
 *   **Exames Laboratoriais:** Hemograma, coagulograma, perfil de trombofilia (se realizado).
 
 **## Instruções da Tarefa e Formato de Saída**
@@ -211,7 +211,7 @@ O usuário (médico) fornecerá as informações do paciente de forma estruturad
 
 *   **C (Cardiopatia): Grau [nota]**
     *   **Critério(s) Atendido(s):** [Cite o critério.]
-    *   **Raciocínio:** [Explique a lógica.]
+    *   **Raciocínio:** [Explique a lógica. Exemplo de raciocínio para cardiopatia: "Paciente com átrio esquerdo de 71ml (dilatação significativa) e lesão cortical. Embora a dilatação do AE não esteja listada como um critério C1 isolado, ela é um marcador forte de cardiopatia embólica, especialmente na Doença de Chagas, e, em conjunto com um infarto de padrão embólico (cortical), justifica a classificação como C1(11)."]
 
 *   **O (Outra Causa): Grau [nota]**
     *   **Critério(s) Atendido(s):** [Cite o critério.]
@@ -390,41 +390,51 @@ class ASCODClassifier:
         if not self.api_key:
             raise ValueError("API key for Gemini not found. Please set the GEMINI_API_KEY environment variable.")
         genai.configure(api_key=self.api_key)
-        # O modelo exato pode ser ajustado conforme necessário
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        # Modelo atualizado para gemini-2.5-pro conforme solicitado para maior precisão
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
 
     def analyze_with_ai(self, text):
         """
         Analisa o texto clínico e retorna a classificação em formato JSON.
         """
-        # Prompt otimizado para extrair JSON diretamente
+        # Prompt otimizado que inclui as instruções completas do sistema e o resumo do paciente.
         prompt = f"""
-        Analise o seguinte resumo clínico e determine as classificações ASCOD e TOAST.
-        Resumo: "{text}"
+        {ASCOD_SYSTEM_INSTRUCTION}
+
+        **## Dados do Paciente para Análise**
+
+        Analise o seguinte resumo clínico do paciente:
+        "{text}"
+
+        **## Tarefa**
+        
+        Com base nos dados fornecidos e aplicando ESTRITAMENTE os critérios ASCOD e TOAST descritos na sua base de conhecimento, gere a classificação.
         Responda APENAS com um objeto JSON válido, sem nenhum texto ou formatação adicional (como ```json).
+        Sua resposta deve ser um JSON puro, começando com `{{` e terminando com `}}`.
         A estrutura do JSON deve ser:
         {{
           "ascod": {{
-            "A": {{"grade": <integer_value>, "justification": "..."}},
-            "S": {{"grade": <integer_value>, "justification": "..."}},
-            "C": {{"grade": <integer_value>, "justification": "..."}},
-            "O": {{"grade": <integer_value>, "justification": "..."}},
-            "D": {{"grade": <integer_value>, "justification": "..."}}
+            "A": {{"grade": 9, "justification": "Avaliação incompleta por falta de dados."}},
+            "S": {{"grade": 9, "justification": "Avaliação incompleta por falta de dados."}},
+            "C": {{"grade": 9, "justification": "Avaliação incompleta por falta de dados."}},
+            "O": {{"grade": 9, "justification": "Avaliação incompleta por falta de dados."}},
+            "D": {{"grade": 9, "justification": "Avaliação incompleta por falta de dados."}}
           }},
           "toast": {{
-            "classification": "<string_value>",
+            "classification": "...",
             "justification": "..."
           }}
         }}
         """
         try:
-            # A configuração 'response_mime_type' foi removida para garantir compatibilidade com
-            # diferentes versões da biblioteca. O prompt foi otimizado para retornar JSON.
-            response = self.model.generate_content(prompt)
+            # Configuração para forçar a saída em JSON
+            generation_config = genai.types.GenerationConfig(
+                response_mime_type="application/json"
+            )
+            response = self.model.generate_content(prompt, generation_config=generation_config)
             
-            # Limpeza adicional para garantir que a saída seja apenas o JSON
-            cleaned_text = response.text.strip().replace("`", "").replace("json", "")
-            return cleaned_text
+            # A API com response_mime_type="application/json" já retorna o texto limpo
+            return response.text
             
         except Exception as e:
             print(f"Error during AI analysis: {e}")
