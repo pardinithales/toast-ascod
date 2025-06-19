@@ -415,7 +415,7 @@ class ASCODClassifier:
             raise ValueError("API key for Gemini not found. Please set the GEMINI_API_KEY environment variable.")
         genai.configure(api_key=self.api_key)
         # Modelo atualizado para gemini-2.5-pro conforme solicitado para maior precisão
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
 
     def analyze_with_ai(self, text):
         """
