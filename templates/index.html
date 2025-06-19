@@ -40,100 +40,127 @@
                 <!-- Structured Input Tab -->
                 <div id="structured-tab" class="tab-pane active">
                     <form id="structured-form" class="structured-form">
-                        <!-- Fatores de Risco -->
+                        
+                        <!-- Aterosclerose (A) -->
                         <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-heart-pulse"></i>
-                                Fatores de Risco Vascular
-                            </h3>
-                            <div class="form-grid">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="htn" name="htn">
-                                    <label for="htn">Hipertensão (HAS)</label>
+                            <h3 class="section-title"><i class="fas fa-road-barrier"></i> Aterosclerose (A)</h3>
+                            <div class="form-group">
+                                <label for="stenosis">Estenose Arterial Ipsilateral (%)</label>
+                                <div class="range-input">
+                                    <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="0">
+                                    <span class="range-value">0%</span>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="dm" name="dm">
-                                    <label for="dm">Diabetes Mellitus</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">A1: Causa Potencial</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a1_stenosis_lt_50_thrombus" name="a1_stenosis_lt_50_thrombus"><label for="a1_stenosis_lt_50_thrombus">Estenose ipsilateral &lt;50% com trombo luminal</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a1_aortic_mobile_thrombus" name="a1_aortic_mobile_thrombus"><label for="a1_aortic_mobile_thrombus">Trombo móvel no arco aórtico</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a1_occlusion_athero" name="a1_occlusion_athero"><label for="a1_occlusion_athero">Oclusão ipsilateral com placa aterosclerótica</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="dlp" name="dlp">
-                                    <label for="dlp">Dislipidemia</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">A2: Ligação Causal Incerta</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a2_aortic_plaque_ge_4mm" name="a2_aortic_plaque_ge_4mm"><label for="a2_aortic_plaque_ge_4mm">Placa aórtica &ge;4 mm sem lesão móvel</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="smoker" name="smoker">
-                                    <label for="smoker">Tabagismo</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">A3: Ligação Causal Improvável</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a3_aortic_plaque_lt_4mm" name="a3_aortic_plaque_lt_4mm"><label for="a3_aortic_plaque_lt_4mm">Placa aórtica &lt;4mm</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a3_stenosis_contralateral" name="a3_stenosis_contralateral"><label for="a3_stenosis_contralateral">Estenose em artéria não relacionada (contralateral, etc)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a3_history_mi_pad" name="a3_history_mi_pad"><label for="a3_history_mi_pad">História de IAM ou Doença Arterial Periférica</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="a3_stenosis_50_99_bihemispheric" name="a3_stenosis_50_99_bihemispheric"><label for="a3_stenosis_50_99_bihemispheric">Estenose 50-99% com lesões bi-hemisféricas em DWI</label></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Achados de Imagem -->
+                        <!-- Doença de Pequenos Vasos (S) -->
                         <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-x-ray"></i>
-                                Achados de Imagem
-                            </h3>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="stenosis">Estenose Arterial Ipsilateral</label>
-                                    <div class="range-input">
-                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="0">
-                                        <span class="range-value">0%</span>
-                                    </div>
+                            <h3 class="section-title"><i class="fas fa-water"></i> Doença de Pequenos Vasos (S)</h3>
+                             <div class="form-group">
+                                <label for="infarct_type">Tipo de Infarto Predominante</label>
+                                <select id="infarct_type" name="infarct_type">
+                                    <option value="none">Não especificado</option>
+                                    <option value="cortical_large">Cortical ou >1.5cm</option>
+                                    <option value="subcortical_small_lacunar">Subcortical lacunar (<1.5cm)</option>
+                                    <option value="subcortical_other_size">Subcortical não lacunar</option>
+                                </select>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">S1: Causa Potencial</h4>
+                                <div class="form-grid-checkboxes">
+                                     <div class="form-group checkbox-group"><input type="checkbox" id="s1_lacunar_infarct_syndrome" name="s1_lacunar_infarct_syndrome"><label for="s1_lacunar_infarct_syndrome">Infarto lacunar + síndrome lacunar clássica</label></div>
+                                     <div class="form-group checkbox-group"><input type="checkbox" id="s1_lacunar_plus_older_infarcts" name="s1_lacunar_plus_older_infarcts">Associado a infartos lacunares antigos</label></div>
+                                     <div class="form-group checkbox-group"><input type="checkbox" id="s1_lacunar_plus_severe_leuko" name="s1_lacunar_plus_severe_leuko">Associado a leucoaraiose grave (Fazekas III)</label></div>
+                                     <div class="form-group checkbox-group"><input type="checkbox" id="s1_lacunar_plus_tias" name="s1_lacunar_plus_tias">Associado a TIAs repetidos (<1 mês) no território</label></div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="infarct_type">Tipo de Infarto</label>
-                                    <select id="infarct_type" name="infarct_type">
-                                        <option value="none">Não especificado</option>
-                                        <option value="cortical_large">Cortical ou >1.5cm</option>
-                                        <option value="subcortical_small_lacunar">Subcortical lacunar (<1.5cm)</option>
-                                        <option value="subcortical_other_size">Subcortical não lacunar</option>
-                                    </select>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">S2: Ligação Causal Incerta</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s2_single_recent_lacunar" name="s2_single_recent_lacunar">Apenas 1 infarto lacunar recente, sem outras alterações</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s2_lacunar_syndrome_no_lesion" name="s2_lacunar_syndrome_no_lesion">Síndrome clínica lacunar, sem lesão na imagem</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="leukoaraiosis" name="leukoaraiosis">
-                                    <label for="leukoaraiosis">Leucoaraiose presente</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">S3: Ligação Causal Improvável</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s3_severe_leuko_isolated" name="s3_severe_leuko_isolated">Leucoaraiose grave (Fazekas III) isolada</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s3_microbleeds_isolated" name="s3_microbleeds_isolated">Microbleeds em T2* isolados</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s3_perivascular_spaces_isolated" name="s3_perivascular_spaces_isolated">Dilatação severa de espaços perivasculares</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="s3_old_lacunar_infarcts_isolated" name="s3_old_lacunar_infarcts_isolated">Infartos lacunares antigos isolados</label></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Achados Cardíacos -->
+                        <!-- Cardiopatia (C) -->
                         <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-heart"></i>
-                                Avaliação Cardíaca
-                            </h3>
-                            <div class="form-grid">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="afib" name="afib">
-                                    <label for="afib">Fibrilação/Flutter Atrial</label>
+                            <h3 class="section-title"><i class="fas fa-heart-pulse"></i> Cardiopatia (C)</h3>
+                             <div class="form-group">
+                                <label for="lvef">Fração de Ejeção do VE (%)</label>
+                                <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="Ex: 55">
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">C1: Causa Potencial (Alto Risco)</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_mitral_stenosis" name="c1_mitral_stenosis"><label for="c1_mitral_stenosis">Estenose Mitral (<1.5 cm²)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_mechanical_valve" name="c1_mechanical_valve"><label for="c1_mechanical_valve">Prótese valvar mecânica</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_mi_lt_4wks" name="c1_mi_lt_4wks"><label for="c1_mi_lt_4wks">IAM < 4 semanas</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_mural_thrombus" name="c1_mural_thrombus"><label for="c1_mural_thrombus">Trombo mural em cavidades esquerdas</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_lv_aneurysm" name="c1_lv_aneurysm"><label for="c1_lv_aneurysm">Aneurisma de VE</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_afib_documented" name="c1_afib_documented"><label for="c1_afib_documented">FA/Flutter documentado (>60s)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_sick_sinus" name="c1_sick_sinus"><label for="c1_sick_sinus">Doença do nó sinusal</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_cardiomyopathy" name="c1_cardiomyopathy"><label for="c1_cardiomyopathy">Cardiomiopatia (dilatada/hipertrófica)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_endocarditis" name="c1_endocarditis"><label for="c1_endocarditis">Endocardite</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_intracardiac_mass" name="c1_intracardiac_mass"><label for="c1_intracardiac_mass">Massa intracardíaca (mixoma, etc)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_pfo_thrombus_in_situ" name="c1_pfo_thrombus_in_situ"><label for="c1_pfo_thrombus_in_situ">FOP com trombo in situ</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c1_pfo_pe_dvt" name="c1_pfo_pe_dvt"><label for="c1_pfo_pe_dvt">FOP com TEP/TVP proximal precedente</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="mech_valve" name="mech_valve">
-                                    <label for="mech_valve">Prótese Valvar Mecânica</label>
+                            </div>
+                             <div class="form-subsection">
+                                <h4 class="subsection-title">C2: Ligação Causal Incerta</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_pfo_asa" name="c2_pfo_asa"><label for="c2_pfo_asa">FOP + Aneurisma de Septo Atrial (ASA)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_pfo_pe_dvt_not_preceding" name="c2_pfo_pe_dvt_not_preceding"><label for="c2_pfo_pe_dvt_not_preceding">FOP + TEP/TVP concomitante (não precedente)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_spontaneous_echo_contrast" name="c2_spontaneous_echo_contrast"><label for="c2_spontaneous_echo_contrast">Contraste espontâneo em AE</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_lv_akinesia_lvef_gt_35" name="c2_lv_akinesia_lvef_gt_35"><label for="c2_lv_akinesia_lvef_gt_35">Acinesia apical de VE com FEVE > 35%</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_multiple_infarcts_old_mi" name="c2_multiple_infarcts_old_mi"><label for="c2_multiple_infarcts_old_mi">Múltiplos infartos + história de IAM/palpitações</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c2_multiple_infarcts_systemic_emboli" name="c2_multiple_infarcts_systemic_emboli"><label for="c2_multiple_infarcts_systemic_emboli">Múltiplos infartos + embolia sistêmica</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="recent_mi" name="recent_mi">
-                                    <label for="recent_mi">IAM Recente (<3 meses)</label>
-                                </div>
-                                <div class="form-group">
-                                    <label for="lvef">Fração de Ejeção do VE</label>
-                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="N/A se não avaliado">
-                                </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="thrombus" name="thrombus">
-                                    <label for="thrombus">Trombo AE/VE</label>
-                                </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="endocarditis" name="endocarditis">
-                                    <label for="endocarditis">Endocardite Infecciosa</label>
-                                </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="pfo" name="pfo">
-                                    <label for="pfo">Forame Oval Patente</label>
-                                </div>
-                                <div class="form-group checkbox-group" id="venous-thrombosis-group" style="display: none;">
-                                    <input type="checkbox" id="venous_thrombosis" name="venous_thrombosis">
-                                    <label for="venous_thrombosis">Trombose Venosa Concomitante</label>
+                            </div>
+                             <div class="form-subsection">
+                                <h4 class="subsection-title">C3: Ligação Causal Improvável</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_pfo_isolated" name="c3_pfo_isolated"><label for="c3_pfo_isolated">FOP isolado</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_asa_isolated" name="c3_asa_isolated"><label for="c3_asa_isolated">ASA isolado</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_strands_isolated" name="c3_strands_isolated"><label for="c3_strands_isolated">"Strands" valvares isolados</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_mitral_annulus_calc" name="c3_mitral_annulus_calc"><label for="c3_mitral_annulus_calc">Calcificação de anel mitral isolada</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_aortic_valve_calc" name="c3_aortic_valve_calc"><label for="c3_aortic_valve_calc">Calcificação de valva aórtica isolada</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_nonapical_akinesia" name="c3_nonapical_akinesia"><label for="c3_nonapical_akinesia">Acinesia não-apical de VE</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_afib_lt_60s" name="c3_afib_lt_60s"><label for="c3_afib_lt_60s">FA transitória < 60s</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="c3_atrial_hyperexcitability" name="c3_atrial_hyperexcitability"><label for="c3_atrial_hyperexcitability">Hiperexcitabilidade atrial</label></div>
                                 </div>
                             </div>
                         </div>
