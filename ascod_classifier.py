@@ -14,8 +14,6 @@ from typing import Dict, List, Optional, Tuple
 from enum import Enum
 from dotenv import load_dotenv
 import google.generativeai as genai
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -368,93 +366,50 @@ class ASCODClassifier:
     def __init__(self, api_key=None):
         self.api_key = api_key or os.getenv('GEMINI_API_KEY')
         if not self.api_key:
-            raise ValueError("API key for Gemini not found. Set GEMINI_API_KEY environment variable.")
+            raise ValueError("API key for Gemini not found. Please set the GEMINI_API_KEY environment variable.")
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        # O modelo exato pode ser ajustado conforme necessário
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def analyze_with_ai(self, text):
+        """
+        Analisa o texto clínico e retorna a classificação em formato JSON.
+        """
+        # Prompt otimizado para extrair JSON diretamente
         prompt = f"""
-        Analise o seguinte resumo clínico e determine a classificação ASCOD e TOAST.
+        Analise o seguinte resumo clínico e determine as classificações ASCOD e TOAST.
         Resumo: "{text}"
-        Responda em JSON com a estrutura: {{"ascod": {{"A": {{"grade": <0-3,9>, "justification": "..."}}, "S": ..., "C": ..., "O": ..., "D": ...}}, "toast": {{"classification": "<1-5>", "justification": "..."}}}}.
-        Justifique cada grau ASCOD (0=ausente, 1=potencial, 2=incerto, 3=improvável, 9=incompleto) e a classificação TOAST.
+        Responda APENAS com um objeto JSON válido, sem nenhum texto ou formatação adicional (como ```json).
+        A estrutura do JSON deve ser:
+        {{
+          "ascod": {{
+            "A": {{"grade": <integer_value>, "justification": "..."}},
+            "S": {{"grade": <integer_value>, "justification": "..."}},
+            "C": {{"grade": <integer_value>, "justification": "..."}},
+            "O": {{"grade": <integer_value>, "justification": "..."}},
+            "D": {{"grade": <integer_value>, "justification": "..."}}
+          }},
+          "toast": {{
+            "classification": "<string_value>",
+            "justification": "..."
+          }}
+        }}
         """
         try:
-            response = self.model.generate_content(prompt)
-            # Limpeza para garantir que a saída seja apenas o JSON
-            cleaned_text = response.text.strip().replace("`", "").replace("json", "")
-            return cleaned_text
+            # Configuração para garantir saída JSON
+            generation_config = genai.types.GenerationConfig(
+                response_mime_type="application/json"
+            )
+            response = self.model.generate_content(prompt, generation_config=generation_config)
+            
+            # A resposta já deve ser um JSON bem-formatado
+            return response.text
+            
         except Exception as e:
             print(f"Error during AI analysis: {e}")
-            return None
-
-
-def main():
-    """Função principal"""
-    classifier = ASCODClassifier()
-    # ... (código existente)
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('\n\nPrograma interrompido pelo usuário.')
-        sys.exit(0)
-    except Exception as e:
-        print(f'\nErro inesperado: {e}')
-        sys.exit(1) 
-
-app = Flask(__name__)
-CORS(app)
-
-# Configuração da API Gemini
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-classifier = ASCODClassifier()
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/api/analyze', methods=['POST'])
-def analyze():
-    try:
-        data = request.json
-        
-        if data.get('type') == 'text':
-            # ... (código existente)
-            pass
-        elif data.get('type') == 'structured':
-            # Mapeia todos os campos do formulário para a dataclass
-            known_fields = {f.name for f in fields(PatientData)}
-            patient_data_args = {k: v for k, v in data.items() if k in known_fields}
-            
-            # Converte valores numéricos
-            if 'stenosis' in patient_data_args and patient_data_args['stenosis']:
-                patient_data_args['stenosis'] = int(patient_data_args['stenosis'])
-            if 'lvef' in patient_data_args and patient_data_args['lvef']:
-                patient_data_args['lvef'] = int(patient_data_args['lvef'])
-
-            patient_data = PatientData(**patient_data_args)
-            
-            clinical_text = patient_data.to_natural_language()
-            result = classifier.analyze_with_ai(clinical_text)
-            
-            if result:
-                ascod_code = extract_ascod_code(result)
-                toast_code = extract_toast_code(result)
-                
-                return jsonify({
-                    'success': True,
-                    'result': result,
-                    'ascod_code': ascod_code,
-                    'toast_code': toast_code,
-                    'clinical_text': clinical_text
-                })
-            else:
-                return jsonify({'error': 'Falha na análise com IA'}), 500
-            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500 
+            # Em caso de erro, retorna um JSON de erro para consistência
+            error_response = {
+                "error": "Failed to get a valid response from AI model.",
+                "details": str(e)
+            }
+            return json.dumps(error_response) 
