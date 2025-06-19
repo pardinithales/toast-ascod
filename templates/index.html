@@ -48,8 +48,8 @@
                                 <div class="form-group">
                                     <label for="stenosis">Estenose Arterial Ipsilateral Relevante</label>
                                     <div class="range-input">
-                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="75">
-                                        <span class="range-value">75%</span>
+                                        <input type="range" id="stenosis" name="stenosis" min="0" max="100" value="0">
+                                        <span class="range-value">0%</span>
                                     </div>
                                     <small>A estenose é o principal indicador para A1, A2 e A3.</small>
                                 </div>
@@ -81,11 +81,11 @@
                                     <select id="infarct_type" name="infarct_type">
                                         <option value="none">Não especificado</option>
                                         <option value="cortical_large">Cortical ou >1.5cm (Geralmente não é de pequenos vasos)</option>
-                                        <option value="subcortical_small_lacunar" selected>Subcortical lacunar &lt;1.5cm (Sugestivo de S1)</option>
+                                        <option value="subcortical_small_lacunar">Subcortical lacunar &lt;1.5cm (Sugestivo de S1)</option>
                                     </select>
                                 </div>
                                 <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="s_has_htn_or_dm" name="s_has_htn_or_dm" checked>
+                                    <input type="checkbox" id="s_has_htn_or_dm" name="s_has_htn_or_dm">
                                     <label for="s_has_htn_or_dm">Paciente com HAS ou DM (S1)</label>
                                 </div>
                                 <div class="form-group checkbox-group">
@@ -109,11 +109,11 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="lvef">Fração de Ejeção do VE (%)</label>
-                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="Ex: 55" value="40">
-                                    <small>FEVE &lt;30% é um critério C1.</small>
+                                    <input type="number" id="lvef" name="lvef" min="0" max="100" placeholder="Ex: 55">
+                                    <small>FEVE &lt;35% é um critério C1.</small>
                                 </div>
                                 <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="c1_afib_documented" name="c1_afib_documented" checked>
+                                    <input type="checkbox" id="c1_afib_documented" name="c1_afib_documented">
                                     <label for="c1_afib_documented">FA/Flutter documentado (>60s) (C1)</label>
                                 </div>
                                 <div class="form-group checkbox-group">
