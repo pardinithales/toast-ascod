@@ -211,7 +211,7 @@ A seguir, um exemplo real de um resumo clínico e a classificação gerada pela 
 
 ### Classificação Gerada pela IA:
 
-**Classificação ASCOD Final:** `A2-S0-C1-O0-D0`
+**Classificação ASCOD Final:** `A2-S0-C1-O9-D9`
 
 **Justificativa Detalhada:**
 
@@ -224,13 +224,13 @@ A seguir, um exemplo real de um resumo clínico e a classificação gerada pela 
     *   **Raciocínio:** A presença de uma 'lesão cortical na tomografia' é incompatível com o padrão de infarto por doença de pequenos vasos, que se manifesta como lesões subcorticais ou no tronco cerebral com menos de 20 mm.
 
 *   **C (Cardiopatia): Grau 1**
-    *   **Critério(s) Atendido(s):** C1(11): Combinação de um padrão de infarto embólico (infarto cortical ou cerebelar >1,5 cm, ou múltiplos infartos em diferentes territórios arteriais) com uma fonte cardíaca de risco menor (ver grau C2).
-    *   **Raciocínio:** O paciente apresenta uma 'lesão cortical', que é um padrão de infarto embólico. A cardiopatia chagásica com dilatação acentuada do átrio esquerdo (71ml) e ectopias atriais representa uma fonte cardíaca de risco. Embora a dilatação atrial não seja um critério C2 explícito, ela é um marcador forte de cardiopatia com potencial embólico, justificando a classificação como C1 em conjunto com o padrão do infarto.
+    *   **Critério(s) Atendido(s):** C1(11): Combinação de um padrão de infarto embólico (infarto cortical ou cerebelar >1,5 cm) com uma fonte cardíaca de risco.
+    *   **Raciocínio:** O paciente apresenta uma 'lesão cortical', que é um padrão de infarto embólico. A cardiopatia chagásica com dilatação acentuada do átrio esquerdo (71ml) e ectopias atriais representa uma fonte cardíaca com potencial embólico, justificando a classificação como C1 em conjunto com o padrão do infarto.
 
-*   **O (Outra Causa): Grau 0**
-    *   **Critério(s) Atendido(s):** O0(1): Ausência de outras causas após exames negativos.
-    *   **Raciocínio:** Embora a Doença de Chagas seja uma causa específica, seu mecanismo de AVC neste caso é o cardioembolismo, que já foi classificado na categoria C. Não há informações que sugiram outras etiologias raras, como vasculites ou trombofilias.
+*   **O (Outra Causa): Grau 9**
+    *   **Critério(s) Atendido(s):** O9(1): Avaliação incompleta com base na suspeita clínica para excluir outras causas.
+    *   **Raciocínio:** O resumo não fornece informações sobre a investigação de outras causas raras de AVC (como vasculites ou trombofilias). Portanto, a avaliação para esta categoria é considerada incompleta.
 
-*   **D (Dissecção): Grau 0**
-    *   **Critério(s) Atendido(s):** D0(1): Ausência de dissecção após avaliação com Angio-RM/Angio-TC de pescoço e crânio ou angiografia convencional.
-    *   **Raciocínio:** Não há dados clínicos (dor cervical, trauma) ou achados de imagem que sugiram dissecção arterial. A avaliação vascular realizada para aterosclerose não reportou sinais de dissecção. 
+*   **D (Dissecção): Grau 9**
+    *   **Critério(s) Atendido(s):** D9(1): A investigação mínima das artérias cervicais e intracranianas não foi relatada como negativa para dissecção.
+    *   **Raciocínio:** O texto não especifica se foi realizada uma avaliação vascular completa para excluir dissecção (ex: Angio-TC/RM de vasos cervicais). Na ausência dessa confirmação, a avaliação para dissecção é incompleta. 

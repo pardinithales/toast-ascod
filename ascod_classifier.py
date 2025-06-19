@@ -231,6 +231,13 @@ O usuário (médico) fornecerá as informações do paciente de forma estruturad
 *   A ambiguidade será resolvida na classificação **TOAST**, que nesses casos será **"TOAST 5 – Etiologia Indeterminada (subtipo 5a: Duas ou mais causas identificadas)"**.
 *   No seu raciocínio para a classificação TOAST, você deve reconhecer e declarar explicitamente a presença de múltiplas causas. Exemplo de Raciocínio para TOAST: 'A classificação é Indeterminada (5a) porque foram identificadas duas ou mais causas potenciais para o AVC: Aterosclerose de grande artéria (Estenose carotídea de 75%, critério A1) e uma fonte cardioembólica de alto risco (Fibrilação Atrial, critério C1).'
 
+---
+
+**## Regra Crucial: Diferença entre Grau 0 (Ausente) e Grau 9 (Incompleto)**
+
+*   **Grau 0 (Ausente):** Use este grau **APENAS** quando o texto clínico afirmar explicitamente que os exames para uma determinada causa foram realizados e resultaram **negativos**. Ex: "A angio-TC de pescoço foi normal, sem sinais de dissecção" justifica D0. "A investigação de trombofilias foi negativa" justifica O0.
+*   **Grau 9 (Incompleto):** Use este grau se a informação para uma categoria simplesmente **NÃO ESTIVER PRESENTE** no resumo. A ausência de informação **NÃO** significa ausência de doença. Ex: Se o texto não menciona exames para dissecção ou outras causas, as notas devem ser D9 e O9.
+
 --- CLASSIFICAÇÃO TOAST ---
 
 Classificação Final: TOAST [nota] – [Nome da classificação]
