@@ -347,10 +347,12 @@ class PatientData:
     o1_moyamoya: bool = False         # Adicionado
     o2_migraine_with_aura: bool = False # Adicionado
     o3_malignancy: bool = False
+    o0_other_causes_excluded: bool = False # Adicionado para exclusão explícita
     
     # D - Dissecção
     d1_direct: bool = False
     d2_weak_evidence: bool = False
+    d0_dissection_excluded: bool = False # Adicionado para exclusão explícita
 
     def to_natural_language(self):
         """Gera um texto em linguagem natural a partir dos dados estruturados."""
@@ -412,12 +414,14 @@ class PatientData:
         if self.o1_moyamoya: o_parts.append("Doença de Moyamoya (O1)")
         if self.o2_migraine_with_aura: o_parts.append("Enxaqueca com aura e déficit prolongado (O2)")
         if self.o3_malignancy: o_parts.append("Malignidade com hipercoagulação (O3)")
+        if self.o0_other_causes_excluded: o_parts.append("Investigação para outras causas raras foi negativa (sugestivo de O0)")
         if o_parts: parts.append(f"Outras Causas: {'; '.join(o_parts)}.")
 
         # Dissecção (D)
         d_parts = []
         if self.d1_direct: d_parts.append("Demonstração direta de hematoma mural (D1)")
         if self.d2_weak_evidence: d_parts.append("Evidência fraca de dissecção (clínica, Horner) (D2)")
+        if self.d0_dissection_excluded: d_parts.append("Avaliação vascular completa excluiu dissecção (sugestivo de D0)")
         if d_parts: parts.append(f"Dissecção: {'; '.join(d_parts)}.")
         
         if not parts:
