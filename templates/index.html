@@ -142,24 +142,36 @@
                         <div class="form-section">
                             <h3 class="section-title">
                                 <i class="fas fa-microscope"></i>
-                                Outras Etiologias
+                                Outras Etiologias (O)
                             </h3>
-                            <div class="form-grid">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="vasculitis" name="vasculitis">
-                                    <label for="vasculitis">Vasculite do SNC</label>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">O1: Causa Potencial</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_polycythemia" name="o1_polycythemia"><label for="o1_polycythemia">Policitemia/Trombocitemia (>800.000)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_fabry" name="o1_fabry"><label for="o1_fabry">Doença de Fabry</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_antiphospholipid" name="o1_antiphospholipid"><label for="o1_antiphospholipid">Sd. Antifosfolípide (>100 GPL ou lúpus anticoag.)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_meningitis" name="o1_meningitis"><label for="o1_meningitis">Meningite coexistente</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_sickle_cell" name="o1_sickle_cell"><label for="o1_sickle_cell">Anemia Falciforme</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_hyperhomocysteinemia" name="o1_hyperhomocysteinemia"><label for="o1_hyperhomocysteinemia">Hiper-homocisteinemia grave</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_moyamoya" name="o1_moyamoya"><label for="o1_moyamoya">Doença de Moyamoya</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o1_other_angiitis" name="o1_other_angiitis"><label for="o1_other_angiitis">Outra angiite cerebral</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="thrombophilia" name="thrombophilia">
-                                    <label for="thrombophilia">Trombofilia com Trombo</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">O2: Ligação Causal Incerta</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o2_aneurysm" name="o2_aneurysm"><label for="o2_aneurysm">Aneurisma sacular com suspeita de embolia</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o2_migraine" name="o2_migraine"><label for="o2_migraine">Ataque de enxaqueca com déficit >60 min</label></div>
                                 </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="other_definite_cause" name="other_definite_cause">
-                                    <label for="other_definite_cause">Outra Causa Determinada</label>
-                                </div>
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="other_probable_cause" name="other_probable_cause">
-                                    <label for="other_probable_cause">Outra Causa Provável</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">O3: Doença Presente, Ligação Causal Improvável</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o3_avm" name="o3_avm"><label for="o3_avm">Malformação arteriovenosa</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o3_thrombocytosis" name="o3_thrombocytosis"><label for="o3_thrombocytosis">Trombocitose <800.000</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o3_antiphospholipid_low" name="o3_antiphospholipid_low"><label for="o3_antiphospholipid_low">Ac. Antifosfolípide <100 GPL</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o3_homocysteinemia_low" name="o3_homocysteinemia_low"><label for="o3_homocysteinemia_low">Homocisteinemia <40 μmol/l</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="o3_malignancy" name="o3_malignancy"><label for="o3_malignancy">Malignidade com hipercoagulação</label></div>
                                 </div>
                             </div>
                         </div>
@@ -168,16 +180,27 @@
                         <div class="form-section">
                             <h3 class="section-title">
                                 <i class="fas fa-code-branch"></i>
-                                Dissecção Arterial
+                                Dissecção Arterial (D)
                             </h3>
-                            <div class="form-grid">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" id="dissection" name="dissection">
-                                    <label for="dissection">Sinais Radiológicos de Dissecção</label>
+                           <div class="form-subsection">
+                                <h4 class="subsection-title">D1: Causa Potencial (Demonstração Direta/Indireta)</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="d1_direct" name="d1_direct"><label for="d1_direct">Demonstração direta de hematoma mural (RNM, TC, US)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="d1_indirect" name="d1_indirect"><label for="d1_indirect">Demonstração indireta (estenose longa, recanalização)</label></div>
                                 </div>
-                                <div class="form-group checkbox-group" id="dissection-history-group">
-                                    <input type="checkbox" id="dissection_history" name="dissection_history">
-                                    <label for="dissection_history">História Sugestiva de Dissecção</label>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">D2: Ligação Causal Incerta</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="d2_weak_evidence" name="d2_weak_evidence"><label for="d2_weak_evidence">Evidência fraca (história clínica sugestiva, Sd. Horner doloroso)</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="d2_fibromuscular" name="d2_fibromuscular"><label for="d2_fibromuscular">Displasia fibromuscular na artéria isquêmica</label></div>
+                                </div>
+                            </div>
+                            <div class="form-subsection">
+                                <h4 class="subsection-title">D3: Doença Presente, Ligação Causal Improvável</h4>
+                                <div class="form-grid-checkboxes">
+                                    <div class="form-group checkbox-group"><input type="checkbox"id="d3_kinking" name="d3_kinking"><label for="d3_kinking">Kinking/Dolicoectasia sem aneurisma complicado</label></div>
+                                    <div class="form-group checkbox-group"><input type="checkbox" id="d3_fibromuscular_other" name="d3_fibromuscular_other"><label for="d3_fibromuscular_other">Displasia fibromuscular em outras artérias</label></div>
                                 </div>
                             </div>
                         </div>

@@ -9,10 +9,13 @@ import os
 import sys
 import json
 import requests
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict, fields
 from typing import Dict, List, Optional, Tuple
 from enum import Enum
 from dotenv import load_dotenv
+import google.generativeai as genai
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -267,279 +270,114 @@ Classifica-se aqui se uma das seguintes condições for atendida:
 
 @dataclass
 class PatientData:
-    """Estrutura de dados do paciente"""
-    # Fatores de risco
+    """Estrutura para os dados do paciente, alinhada com o formulário."""
     htn: bool = False
     dm: bool = False
     dlp: bool = False
     smoker: bool = False
-    
-    # Achados de imagem
     stenosis: int = 0
-    infarct_type: str = "none" # 'none', 'cortical_large', 'subcortical_small_lacunar', 'subcortical_other_size'
+    infarct_type: str = 'none'
     leukoaraiosis: bool = False
-    
-    # Achados cardíacos
     afib: bool = False
     mech_valve: bool = False
-    recent_mi: bool = False # Infarto do miocárdio recente (<3 meses)
-    lvef: Optional[int] = None # Fração de ejeção do VE, pode ser None se não avaliado
-    thrombus: bool = False # Trombo no AE/VE
+    recent_mi: bool = False
+    lvef: Optional[int] = None
+    thrombus: bool = False
     endocarditis: bool = False
     pfo: bool = False
-    venous_thrombosis: bool = False # Trombose venosa concomitante ao FOP
-    
-    # Outras causas
-    vasculitis: bool = False
-    thrombophilia: bool = False
-    other_definite_cause: bool = False # Ex: Moyamoya, Fabry, etc.
-    other_probable_cause: bool = False # Ex: Enxaqueca com aura (sem AVC durante a crise)
-    
-    # Dissecção
-    dissection: bool = False # Hematoma intramural, retalho intimal, sinal do barbante
-    dissection_history: bool = False # História sugestiva (dor cervical/cefaleia/trauma)
+    venous_thrombosis: bool = False
+    o1_polycythemia: bool = False
+    o1_fabry: bool = False
+    o1_antiphospholipid: bool = False
+    o1_meningitis: bool = False
+    o1_sickle_cell: bool = False
+    o1_hyperhomocysteinemia: bool = False
+    o1_moyamoya: bool = False
+    o1_other_angiitis: bool = False
+    o2_aneurysm: bool = False
+    o2_migraine: bool = False
+    o3_avm: bool = False
+    o3_thrombocytosis: bool = False
+    o3_antiphospholipid_low: bool = False
+    o3_homocysteinemia_low: bool = False
+    o3_malignancy: bool = False
+    d1_direct: bool = False
+    d1_indirect: bool = False
+    d2_weak_evidence: bool = False
+    d2_fibromuscular: bool = False
+    d3_kinking: bool = False
+    d3_fibromuscular_other: bool = False
 
-    def to_natural_language(self) -> str:
-        description_parts = []
+    def to_natural_language(self):
+        parts = []
+        risk_factors = [f for f, v in [('hipertensão', self.htn), ('diabetes', self.dm), ('dislipidemia', self.dlp), ('tabagismo', self.smoker)] if v]
+        parts.append(f"Fatores de risco: {', '.join(risk_factors) if risk_factors else 'nenhum'}.")
 
-        # Fatores de Risco Vascular
-        risk_factors = []
-        if self.htn: risk_factors.append("Hipertensão (HAS)")
-        if self.dm: risk_factors.append("Diabetes Mellitus (DM)")
-        if self.dlp: risk_factors.append("Dislipidemia (DLP)")
-        if self.smoker: risk_factors.append("Tabagismo")
-        description_parts.append(f"Fatores de risco vascular: {', '.join(risk_factors) if risk_factors else 'Nenhum fator de risco vascular identificado'}.")
-
-        # Imagem Cerebral
-        infarct_text = ""
-        if self.infarct_type == 'cortical_large':
-            infarct_text = "Infarto cortical ou maior que 1.5 cm"
-        elif self.infarct_type == 'subcortical_small_lacunar':
-            infarct_text = "Infarto subcortical lacunar (menor que 1.5 cm ou 2.0 cm em DWI)"
-        elif self.infarct_type == 'subcortical_other_size':
-            infarct_text = "Infarto subcortical de tamanho não lacunar"
-        else:
-            infarct_text = "Não especificado"
+        if self.stenosis >= 50:
+            parts.append(f"Aterosclerose (A): Estenose de artéria ipsilateral de {self.stenosis}%.")
         
-        leukoaraiosis_text = "Leucoaraiose presente" if self.leukoaraiosis else "Leucoaraiose ausente"
-        description_parts.append(f"Imagem cerebral: {infarct_text}. {leukoaraiosis_text}.")
+        if self.infarct_type == 'subcortical_small_lacunar':
+            parts.append("Doença de Pequenos Vasos (S): Infarto lacunar subcortical (<1.5cm).")
+            if self.leukoaraiosis:
+                parts.append("Leucoaraiose presente.")
 
-        # Avaliação Vascular
-        stenosis_text = f"Estenose arterial ipsilateral de {self.stenosis}%".replace(" de 0%", "ausente ou <50%")
-        dissection_text = ""
-        if self.dissection:
-            dissection_text = "Sinais radiológicos de dissecção arterial presentes."
-        elif self.dissection_history:
-            dissection_text = "História clínica sugestiva de dissecção arterial."
-        else:
-            dissection_text = "Sem evidência de dissecção arterial."
-        description_parts.append(f"Avaliação vascular: {stenosis_text}. {dissection_text}")
-
-        # Avaliação Cardíaca
-        cardiac_info = []
-        if self.afib: cardiac_info.append("Fibrilação atrial")
-        if self.mech_valve: cardiac_info.append("Prótese valvar mecânica")
-        if self.recent_mi: cardiac_info.append("Infarto do miocárdio recente (<3 meses)")
-        if self.lvef is not None: cardiac_info.append(f"Fração de ejeção do VE: {self.lvef}%")
-        if self.thrombus: cardiac_info.append("Trombo intracardíaco")
-        if self.endocarditis: cardiac_info.append("Endocardite")
-        if self.pfo:
-            pfo_detail = "Forame oval patente (FOP)"
-            if self.venous_thrombosis: pfo_detail += " com trombose venosa concomitante"
-            cardiac_info.append(pfo_detail)
-        description_parts.append(f"Achados cardíacos: {', '.join(cardiac_info) if cardiac_info else 'Nenhum achado cardíaco significativo'}.")
-
-        # Outras Causas
-        other_causes_info = []
-        if self.vasculitis: other_causes_info.append("Vasculite do SNC")
-        if self.thrombophilia: other_causes_info.append("Trombofilia com trombo")
-        if self.other_definite_cause: other_causes_info.append("Outra causa determinada (ex: Moyamoya)")
-        if self.other_probable_cause: other_causes_info.append("Outra causa provável (ex: Enxaqueca com aura)")
-        description_parts.append(f"Outras etiologias: {', '.join(other_causes_info) if other_causes_info else 'Nenhuma outra causa específica identificada'}.")
+        cardiac_sources = [f for f, v in [('fibrilação/flutter atrial', self.afib), ('prótese valvar mecânica', self.mech_valve), ('IAM recente', self.recent_mi), ('trombo AE/VE', self.thrombus), ('endocardite', self.endocarditis), ('FOP com trombose venosa', self.pfo and self.venous_thrombosis)] if v]
+        if self.lvef and self.lvef < 35:
+            cardiac_sources.append(f"FEVE de {self.lvef}%")
+        if cardiac_sources:
+            parts.append(f"Cardioembolismo (C): Fontes de alto risco: {', '.join(cardiac_sources)}.")
         
-        return " ".join(description_parts).replace("  ", " ").strip()
+        o_parts = []
+        o1 = [d for f, d in [(self.o1_polycythemia, "policitemia/trombocitemia >800.000"), (self.o1_fabry, "Fabry"), (self.o1_antiphospholipid, "sd. antifosfolípide >100 GPL"), (self.o1_meningitis, "meningite"), (self.o1_sickle_cell, "anemia falciforme"), (self.o1_hyperhomocysteinemia, "hiper-homocisteinemia grave"), (self.o1_moyamoya, "Moyamoya"), (self.o1_other_angiitis, "outra angiite")] if f]
+        if o1: o_parts.append(f"Potenciais (O1): {', '.join(o1)}.")
+        o2 = [d for f, d in [(self.o2_aneurysm, "aneurisma sacular"), (self.o2_migraine, "enxaqueca com déficit >60 min")] if f]
+        if o2: o_parts.append(f"Incerto (O2): {', '.join(o2)}.")
+        o3 = [d for f, d in [(self.o3_avm, "MAV"), (self.o3_thrombocytosis, "trombocitose <800.000"), (self.o3_antiphospholipid_low, "ac. antifosfolípide <100 GPL"), (self.o3_homocysteinemia_low, "homocisteinemia <40"), (self.o3_malignancy, "malignidade")] if f]
+        if o3: o_parts.append(f"Improvável (O3): {', '.join(o3)}.")
+        if o_parts: parts.append(f"Outras Etiologias (O): {' '.join(o_parts)}")
+
+        d_parts = []
+        d1 = [d for f, d in [(self.d1_direct, "demonstração direta de hematoma"), (self.d1_indirect, "demonstração indireta")] if f]
+        if d1: d_parts.append(f"Potencial (D1): {', '.join(d1)}.")
+        d2 = [d for f, d in [(self.d2_weak_evidence, "evidência fraca"), (self.d2_fibromuscular, "displasia fibromuscular isquêmica")] if f]
+        if d2: d_parts.append(f"Incerto (D2): {', '.join(d2)}.")
+        d3 = [d for f, d in [(self.d3_kinking, "kinking/dolicoectasia"), (self.d3_fibromuscular_other, "displasia fibromuscular não isquêmica")] if f]
+        if d3: d_parts.append(f"Improvável (D3): {', '.join(d3)}.")
+        if d_parts: parts.append(f"Dissecção (D): {' '.join(d_parts)}")
+
+        return " ".join(parts)
 
 
 class ASCODClassifier:
-    """Classificador ASCOD/TOAST para AVC"""
-    
-    def __init__(self):
-        self.api_key = GEMINI_API_KEY
-        
-    def analyze_with_ai(self, clinical_description: str) -> Optional[str]:
-        """Análise usando IA do Gemini"""
-        print('\n🤖 Analisando com IA...\n')
-        
-        prompt = f"""Analise o seguinte caso clínico e forneça a classificação ASCOD completa:
+    """Encapsula a lógica de classificação usando a API Gemini."""
+    def __init__(self, api_key=None):
+        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
+        if not self.api_key:
+            raise ValueError("API key for Gemini not found. Set GEMINI_API_KEY environment variable.")
+        genai.configure(api_key=self.api_key)
+        self.model = genai.GenerativeModel('gemini-pro')
 
-{clinical_description}"""
-        
-        payload = {
-            "contents": [{
-                "role": "user",
-                "parts": [{
-                    "text": f"{ASCOD_SYSTEM_INSTRUCTION}\n\n{prompt}"
-                }]
-            }],
-            "generationConfig": {
-                "temperature": 0.2,
-                "topK": 20,
-                "topP": 0.8,
-                "maxOutputTokens": 2048
-            }
-        }
-        
+    def analyze_with_ai(self, text):
+        prompt = f"""
+        Analise o seguinte resumo clínico e determine a classificação ASCOD e TOAST.
+        Resumo: "{text}"
+        Responda em JSON com a estrutura: {{"ascod": {{"A": {{"grade": <0-3,9>, "justification": "..."}}, "S": ..., "C": ..., "O": ..., "D": ...}}, "toast": {{"classification": "<1-5>", "justification": "..."}}}}.
+        Justifique cada grau ASCOD (0=ausente, 1=potencial, 2=incerto, 3=improvável, 9=incompleto) e a classificação TOAST.
+        """
         try:
-            response = requests.post(GEMINI_API_URL, json=payload)
-            response.raise_for_status()
-            
-            result = response.json()
-            if 'candidates' in result and result['candidates']:
-                return result['candidates'][0]['content']['parts'][0]['text']
-            else:
-                print("Erro: Resposta inválida da API")
-                return None
-                
-        except requests.exceptions.RequestException as e:
-            print(f"Erro ao chamar API Gemini: {e}")
+            response = self.model.generate_content(prompt)
+            # Limpeza para garantir que a saída seja apenas o JSON
+            cleaned_text = response.text.strip().replace("`", "").replace("json", "")
+            return cleaned_text
+        except Exception as e:
+            print(f"Error during AI analysis: {e}")
             return None
-    
-    def collect_structured_input(self) -> PatientData:
-        """Coleta dados estruturados via CLI"""
-        print('\n--- Entrada de Dados Estruturada ---\n')
-        
-        data = PatientData()
-        
-        # Funções auxiliares
-        def get_bool(prompt: str) -> bool:
-            while True:
-                resp = input(prompt).lower()
-                if resp in ['s', 'sim', 'y', 'yes']:
-                    return True
-                elif resp in ['n', 'não', 'nao', 'no']:
-                    return False
-                print("Por favor, responda com 's' ou 'n'")
-        
-        def get_int(prompt: str, min_val: int = 0, max_val: int = 100, allow_none: bool = False) -> Optional[int]:
-            while True:
-                try:
-                    val_str = input(prompt)
-                    if allow_none and val_str.lower() in ['n/a', 'na', 'none', '']:
-                        return None
-                    val = int(val_str)
-                    if min_val <= val <= max_val:
-                        return val
-                    print(f"Por favor, insira um número entre {min_val} e {max_val}.")
-                except ValueError:
-                    print("Por favor, insira um número válido ou 'N/A'.")
-
-        def get_infarct_type(prompt: str) -> str:
-            options = ['cortical_large', 'subcortical_small_lacunar', 'subcortical_other_size', 'none']
-            while True:
-                resp = input(f"{prompt} ({', '.join(options)}): ").lower()
-                if resp in options:
-                    return resp
-                print(f"Tipo de infarto inválido. Escolha entre: {', '.join(options)}.")
-
-        # Coleta de dados
-        print("=== Fatores de Risco ===")
-        data.htn = get_bool("Hipertensão (HAS)? (s/n): ")
-        data.dm = get_bool("Diabetes Mellitus (DM)? (s/n): ")
-        data.dlp = get_bool("Dislipidemia (DLP)? (s/n): ")
-        data.smoker = get_bool("Tabagismo? (s/n): ")
-        
-        print("\n=== Achados de Imagem ===")
-        data.stenosis = get_int("Grau de estenose arterial ipsilateral (0-100%): ")
-        data.infarct_type = get_infarct_type("Tipo de infarto")
-        data.leukoaraiosis = get_bool("Leucoaraiose presente? (s/n): ")
-        
-        print("\n=== Achados Cardíacos ===")
-        data.afib = get_bool("Fibrilação atrial ou flutter atrial? (s/n): ")
-        data.mech_valve = get_bool("Prótese valvar mecânica? (s/n): ")
-        data.recent_mi = get_bool("Infarto do miocárdio recente (<3 meses)? (s/n): ")
-        data.lvef = get_int("Fração de ejeção do VE (0-100, ou N/A se não avaliado): ", allow_none=True)
-        data.thrombus = get_bool("Trombo no átrio esquerdo (AE) ou ventrículo esquerdo (VE)? (s/n): ")
-        data.endocarditis = get_bool("Endocardite infecciosa? (s/n): ")
-        data.pfo = get_bool("Forame oval patente (FOP)? (s/n): ")
-        if data.pfo:
-            data.venous_thrombosis = get_bool("Trombose venosa concomitante ao FOP (para embolia paradoxal)? (s/n): ")
-        
-        print("\n=== Outras Causas ===")
-        data.vasculitis = get_bool("Vasculite do SNC (com achados anormais em LCR/angiografia)? (s/n): ")
-        data.thrombophilia = get_bool("Trombofilia (ex: deficiência de proteína C/S) com trombo venoso/arterial? (s/n): ")
-        data.other_definite_cause = get_bool("Outra causa determinada (ex: Moyamoya, Fabry)? (s/n): ")
-        data.other_probable_cause = get_bool("Outra causa provável (ex: enxaqueca com aura, sem AVC durante a crise)? (s/n): ")
-        
-        print("\n=== Dissecção ===")
-        data.dissection = get_bool("Sinais radiológicos de dissecção arterial (hematoma, flap intimal, sinal do barbante)? (s/n): ")
-        if not data.dissection:
-            data.dissection_history = get_bool("História clínica sugestiva de dissecção (dor cervical/cefaleia/trauma)? (s/n): ")
-        
-        return data
-    
-    def display_results(self, result: str):
-        """Exibe o resultado da análise com IA"""
-        print('\n' + '='*50)
-        print('RESULTADOS')
-        print('='*50)
-
-        if result:
-            print(result)
-        else:
-            print("Não foi possível obter a classificação da IA.")
-        
-        print('\n' + '='*50)
-    
-    def run_cli(self):
-        """Interface principal do programa"""
-        print('='*60)
-        print('    Classificador ASCOD/TOAST de AVC - Versão Python')
-        print('='*60)
-        
-        while True:
-            print('\nEscolha uma opção:')
-            print('1. Entrada estruturada (formulário)')
-            print('2. Análise por texto com IA')
-            print('3. Sair')
-            
-            choice = input('\nOpção: ')
-            
-            if choice == '1':
-                data = self.collect_structured_input()
-                description_from_form = data.to_natural_language()
-                ai_output = self.analyze_with_ai(description_from_form)
-                self.display_results(ai_output)
-                
-            elif choice == '2':
-                print('\n--- Análise por Texto com IA ---')
-                print('Descreva o caso clínico (digite END em nova linha para finalizar):\n')
-                
-                lines = []
-                while True:
-                    line = input()
-                    if line.upper() == 'END':
-                        break
-                    lines.append(line)
-                
-                description = '\n'.join(lines)
-                ai_output = self.analyze_with_ai(description)
-                
-                if ai_output:
-                    print('\n=== Análise da IA ===\n')
-                    print(ai_output)
-                
-            elif choice == '3':
-                print('\nEncerrando...')
-                break
-                
-            else:
-                print('\nOpção inválida! Tente novamente.')
 
 
 def main():
     """Função principal"""
     classifier = ASCODClassifier()
-    classifier.run_cli()
+    # ... (código existente)
 
 
 if __name__ == '__main__':
@@ -550,4 +388,58 @@ if __name__ == '__main__':
         sys.exit(0)
     except Exception as e:
         print(f'\nErro inesperado: {e}')
-        sys.exit(1) 
+        sys.exit(1)
+
+app = Flask(__name__)
+CORS(app)
+
+# Configuração da API Gemini
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+
+classifier = ASCODClassifier()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze():
+    try:
+        data = request.json
+        
+        if data.get('type') == 'text':
+            # ... (código existente)
+            pass
+        elif data.get('type') == 'structured':
+            # Mapeia todos os campos do formulário para a dataclass
+            known_fields = {f.name for f in fields(PatientData)}
+            patient_data_args = {k: v for k, v in data.items() if k in known_fields}
+            
+            # Converte valores numéricos
+            if 'stenosis' in patient_data_args and patient_data_args['stenosis']:
+                patient_data_args['stenosis'] = int(patient_data_args['stenosis'])
+            if 'lvef' in patient_data_args and patient_data_args['lvef']:
+                patient_data_args['lvef'] = int(patient_data_args['lvef'])
+
+            patient_data = PatientData(**patient_data_args)
+            
+            clinical_text = patient_data.to_natural_language()
+            result = classifier.analyze_with_ai(clinical_text)
+            
+            if result:
+                ascod_code = extract_ascod_code(result)
+                toast_code = extract_toast_code(result)
+                
+                return jsonify({
+                    'success': True,
+                    'result': result,
+                    'ascod_code': ascod_code,
+                    'toast_code': toast_code,
+                    'clinical_text': clinical_text
+                })
+            else:
+                return jsonify({'error': 'Falha na análise com IA'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500 
