@@ -418,14 +418,13 @@ class ASCODClassifier:
         }}
         """
         try:
-            # Configuração para garantir saída JSON
-            generation_config = genai.types.GenerationConfig(
-                response_mime_type="application/json"
-            )
-            response = self.model.generate_content(prompt, generation_config=generation_config)
+            # A configuração 'response_mime_type' foi removida para garantir compatibilidade com
+            # diferentes versões da biblioteca. O prompt foi otimizado para retornar JSON.
+            response = self.model.generate_content(prompt)
             
-            # A resposta já deve ser um JSON bem-formatado
-            return response.text
+            # Limpeza adicional para garantir que a saída seja apenas o JSON
+            cleaned_text = response.text.strip().replace("`", "").replace("json", "")
+            return cleaned_text
             
         except Exception as e:
             print(f"Error during AI analysis: {e}")

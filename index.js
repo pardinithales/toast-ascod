@@ -83,7 +83,7 @@ Forneça uma resposta estruturada contendo:
 class ASCODClassifier {
     constructor() {
         this.model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.5-flash',
             systemInstruction: ASCOD_SYSTEM_INSTRUCTION,
             generationConfig: {
                 temperature: 0.2,
