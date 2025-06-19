@@ -163,73 +163,54 @@ function showLoading() {
 }
 
 function displayResults(result) {
-    // Extract ASCOD components
-    const ascodMatch = result.ascod_code ? result.ascod_code.match(/A(\d)-S(\d)-C(\d)-O(\d)-D(\d)/) : null;
-    
-    // Update ASCOD Badge
+    // Update Badges
     document.getElementById('ascod-badge').textContent = result.ascod_code || 'N/A';
-    
-    // Update TOAST Badge
     document.getElementById('toast-badge').textContent = result.toast_code || 'N/A';
     
-    // Parse and display ASCOD details
-    if (ascodMatch) {
-        const ascodComponents = {
-            A: { grade: ascodMatch[1], name: 'Aterosclerose' },
-            S: { grade: ascodMatch[2], name: 'Doença de Pequenos Vasos' },
-            C: { grade: ascodMatch[3], name: 'Cardiopatia' },
-            O: { grade: ascodMatch[4], name: 'Outras Causas' },
-            D: { grade: ascodMatch[5], name: 'Dissecção' }
-        };
+    const analysis = result.result; // This is the AI's response object
+
+    // Display ASCOD Justifications
+    let ascodHtml = '';
+    if (analysis && analysis.ascod) {
+        const ascodOrder = ['A', 'S', 'C', 'O', 'D'];
+        const ascodNames = { A: 'Aterosclerose', S: 'Pequenos Vasos', C: 'Cardiopatia', O: 'Outras Causas', D: 'Dissecção' };
         
-        const ascodHtml = Object.entries(ascodComponents).map(([key, value]) => `
-            <div class="ascod-component">
-                <span class="component-key">${key}:</span>
-                <span class="component-grade grade-${value.grade}">${value.grade}</span>
-                <span class="component-name">${value.name}</span>
-            </div>
-        `).join('');
-        
-        document.getElementById('ascod-details').innerHTML = ascodHtml;
+        ascodHtml = ascodOrder.map(key => {
+            const item = analysis.ascod[key];
+            if (!item) return '';
+            return `
+                <div class="justification-item">
+                    <div class="justification-header">
+                        <span class="component-key">${key}</span>
+                        <span class="component-grade grade-${item.grade}">${item.grade}</span>
+                        <span class="component-name">${ascodNames[key]}</span>
+                    </div>
+                    <p class="justification-text">${item.justification}</p>
+                </div>
+            `;
+        }).join('');
     } else {
-        document.getElementById('ascod-details').innerHTML = '<p>Não foi possível extrair os componentes ASCOD</p>';
+        ascodHtml = '<p>Justificativas ASCOD não disponíveis.</p>';
     }
-    
-    // Parse and display TOAST details
-    const toastHtml = `
-        <div class="toast-classification">
-            <p><strong>Classificação:</strong> ${result.toast_code || 'N/A'}</p>
-            <p class="toast-description">${getToastDescription(result.toast_code)}</p>
-        </div>
-    `;
+    document.getElementById('ascod-details').innerHTML = ascodHtml;
+
+    // Display TOAST Justification
+    let toastHtml = '';
+    if (analysis && analysis.toast) {
+        toastHtml = `
+            <div class="justification-item toast-justification">
+                <strong>${result.toast_code}</strong>
+                <p class="justification-text">${analysis.toast.justification}</p>
+            </div>
+        `;
+    } else {
+        toastHtml = '<p>Justificativa TOAST não disponível.</p>';
+    }
     document.getElementById('toast-details').innerHTML = toastHtml;
-    
-    // Display full analysis
-    document.getElementById('full-analysis-content').innerHTML = formatAnalysis(result.result);
-}
 
-function getToastDescription(toastCode) {
-    const descriptions = {
-        'TOAST 1': 'Aterosclerose de Grandes Artérias',
-        'TOAST 2': 'Cardioembólico',
-        'TOAST 3': 'Oclusão de Pequenas Artérias',
-        'TOAST 4': 'Outra Etiologia Determinada',
-        'TOAST 5a': 'Duas ou mais causas identificadas',
-        'TOAST 5b': 'Criptogênico (avaliação negativa)',
-        'TOAST 5c': 'Avaliação incompleta'
-    };
-    
-    return descriptions[toastCode] || 'Classificação não reconhecida';
-}
-
-function formatAnalysis(text) {
-    if (!text) return 'Análise não disponível';
-    
-    // Format the analysis text for better readability
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>')
-        .replace(/---/g, '<hr>');
+    // Display original clinical text for full analysis
+    let fullAnalysisHtml = `<h4>Texto Enviado para Análise</h4><p class="analysis-prompt">${result.clinical_text || 'N/A'}</p>`;
+    document.getElementById('full-analysis-content').innerHTML = fullAnalysisHtml;
 }
 
 function showError(message) {
@@ -253,52 +234,59 @@ function resetAnalysis() {
 // Add CSS for component display
 const style = document.createElement('style');
 style.textContent = `
-    .ascod-component {
+    .justification-item {
+        padding: 0.75rem 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #dbeafe; /* primary-color-light */
+    }
+    .justification-item.toast-justification {
+        border-left-color: #d1fae5; /* success-color-light */
+    }
+    .justification-header {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.75rem;
-        background: #f9fafb;
-        border-radius: 8px;
         margin-bottom: 0.5rem;
     }
-    
+    .justification-text {
+        color: #4b5563; /* gray-600 */
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+    .analysis-prompt {
+        font-style: italic;
+        color: #6b7280; /* gray-500 */
+        background-color: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+    }
     .component-key {
         font-weight: 700;
         color: var(--primary-color);
-        font-size: 1.25rem;
+        font-size: 1.1rem;
     }
-    
     .component-grade {
         font-weight: 600;
-        padding: 0.25rem 0.75rem;
+        padding: 0.2rem 0.6rem;
         border-radius: 6px;
         color: white;
+        font-size: 0.9rem;
+        min-width: 20px;
+        text-align: center;
     }
-    
     .grade-0 { background: var(--success-color); }
     .grade-1 { background: var(--danger-color); }
     .grade-2 { background: var(--warning-color); }
     .grade-3 { background: var(--gray-color); }
     .grade-9 { background: var(--dark-color); }
-    
     .component-name {
         flex: 1;
         color: var(--dark-color);
+        font-weight: 500;
     }
-    
-    .toast-classification {
-        padding: 1rem;
-        background: #f9fafb;
-        border-radius: 8px;
-    }
-    
-    .toast-description {
-        margin-top: 0.5rem;
-        color: var(--gray-color);
-        font-style: italic;
-    }
-    
     .error-message {
         color: var(--danger-color);
         display: flex;
@@ -308,15 +296,6 @@ style.textContent = `
         background: #fef2f2;
         border-radius: 8px;
     }
-    
-    .analysis-content strong {
-        color: var(--primary-color);
-    }
-    
-    .analysis-content hr {
-        margin: 1.5rem 0;
-        border: none;
-        border-top: 1px solid #e5e7eb;
-    }
 `;
+document.head.appendChild(style); 
 document.head.appendChild(style); 
