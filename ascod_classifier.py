@@ -221,6 +221,16 @@ O usuário (médico) fornecerá as informações do paciente de forma estruturad
     *   **Critério(s) Atendido(s):** [Cite o critério.]
     *   **Raciocínio:** [Explique a lógica.]
 
+---
+
+**## Regra Crucial: Múltiplas Causas**
+
+É fundamental entender que um paciente pode ter múltiplas patologias que se encaixam no Grau 1. Por exemplo, um paciente pode ter Fibrilação Atrial (C1) e uma estenose carotídea ipsilateral de 75% (A1).
+
+*   **Neste cenário, você DEVE atribuir Grau 1 a AMBAS as categorias (A e C).** Não tente escolher a causa "mais provável". Sua tarefa é aplicar os critérios a cada categoria de forma independente.
+*   A ambiguidade será resolvida na classificação **TOAST**, que nesses casos será **"TOAST 5 – Etiologia Indeterminada (subtipo 5a: Duas ou mais causas identificadas)"**.
+*   No seu raciocínio para a classificação TOAST, você deve reconhecer e declarar explicitamente a presença de múltiplas causas. Exemplo de Raciocínio para TOAST: 'A classificação é Indeterminada (5a) porque foram identificadas duas ou mais causas potenciais para o AVC: Aterosclerose de grande artéria (Estenose carotídea de 75%, critério A1) e uma fonte cardioembólica de alto risco (Fibrilação Atrial, critério C1).'
+
 --- CLASSIFICAÇÃO TOAST ---
 
 Classificação Final: TOAST [nota] – [Nome da classificação]

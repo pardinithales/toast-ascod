@@ -188,4 +188,49 @@ Esta ferramenta é destinada ao **suporte à decisão clínica** e não substitu
 
 ---
 
-⭐ **Se este projeto foi útil, deixe uma estrela no GitHub!** 
+⭐ **Se este projeto foi útil, deixe uma estrela no GitHub!**
+
+# Classificador Etiológico de AVC com IA - ASCOD e TOAST
+
+Este projeto utiliza a API do Google Gemini para classificar a etiologia de Acidentes Vasculares Cerebrais (AVCs) isquêmicos com base nos critérios ASCOD e TOAST. O sistema é projetado para auxiliar neurologistas e profissionais de saúde a analisar dados clínicos de pacientes e determinar as causas prováveis do AVC.
+
+## Funcionalidades
+
+- **Classificação Dupla:** Implementa tanto os critérios ASCOD (Aterosclerose, Doença de Pequenos Vasos, Cardiopatia, Outras causas, Dissecção) quanto TOAST.
+- **Análise por IA:** Utiliza o modelo `gemini-2.5-pro` para interpretar resumos clínicos em texto livre ou dados estruturados.
+- **Prompt Detalhado:** O sistema é guiado por um prompt robusto que contém a base de conhecimento completa dos critérios, incluindo regras para lidar com casos complexos e múltiplas etiologias.
+- **Saída Estruturada:** Retorna a classificação em um formato JSON claro, com a nota e a justificativa detalhada para cada categoria.
+
+## Exemplo de Uso e Classificação
+
+A seguir, um exemplo real de um resumo clínico e a classificação gerada pela IA, demonstrando a precisão do sistema.
+
+### Resumo Clínico do Paciente:
+
+"Diabetes, chagásico com Fração de ejeção preservada, átrio esquerdo 71ml, holter com 600 ectopias atirais, aterosclerose menor 50%, lesão cortical na tomografia"
+
+### Classificação Gerada pela IA:
+
+**Classificação ASCOD Final:** `A2-S0-C1-O0-D0`
+
+**Justificativa Detalhada:**
+
+*   **A (Aterosclerose): Grau 2**
+    *   **Critério(s) Atendido(s):** A2(1): Estenose <50% de uma artéria intracraniana ou extracraniana ipsilateral.
+    *   **Raciocínio:** O resumo clínico informa a presença de 'aterosclerose menor 50%', o que se alinha com o critério de uma ligação causal incerta.
+
+*   **S (Doença de Pequenos Vasos): Grau 0**
+    *   **Critério(s) Atendido(s):** S0(1): Ausência de qualquer um dos achados acima em RM ou TC.
+    *   **Raciocínio:** A presença de uma 'lesão cortical na tomografia' é incompatível com o padrão de infarto por doença de pequenos vasos, que se manifesta como lesões subcorticais ou no tronco cerebral com menos de 20 mm.
+
+*   **C (Cardiopatia): Grau 1**
+    *   **Critério(s) Atendido(s):** C1(11): Combinação de um padrão de infarto embólico (infarto cortical ou cerebelar >1,5 cm, ou múltiplos infartos em diferentes territórios arteriais) com uma fonte cardíaca de risco menor (ver grau C2).
+    *   **Raciocínio:** O paciente apresenta uma 'lesão cortical', que é um padrão de infarto embólico. A cardiopatia chagásica com dilatação acentuada do átrio esquerdo (71ml) e ectopias atriais representa uma fonte cardíaca de risco. Embora a dilatação atrial não seja um critério C2 explícito, ela é um marcador forte de cardiopatia com potencial embólico, justificando a classificação como C1 em conjunto com o padrão do infarto.
+
+*   **O (Outra Causa): Grau 0**
+    *   **Critério(s) Atendido(s):** O0(1): Ausência de outras causas após exames negativos.
+    *   **Raciocínio:** Embora a Doença de Chagas seja uma causa específica, seu mecanismo de AVC neste caso é o cardioembolismo, que já foi classificado na categoria C. Não há informações que sugiram outras etiologias raras, como vasculites ou trombofilias.
+
+*   **D (Dissecção): Grau 0**
+    *   **Critério(s) Atendido(s):** D0(1): Ausência de dissecção após avaliação com Angio-RM/Angio-TC de pescoço e crânio ou angiografia convencional.
+    *   **Raciocínio:** Não há dados clínicos (dor cervical, trauma) ou achados de imagem que sugiram dissecção arterial. A avaliação vascular realizada para aterosclerose não reportou sinais de dissecção. 
