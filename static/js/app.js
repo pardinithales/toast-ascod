@@ -249,10 +249,16 @@ function displayResults(result) {
             const item = result.ascod[key];
             if (!item) return '';
             
+            // Garante que o grau 0 seja exibido corretamente
+            const grade = (item.grade !== null && typeof item.grade !== 'undefined') ? item.grade : 'N/A';
+
             return `
                 <div class="justification-item">
-                    <span class="justification-category">${key} (${ascodNames[key]}):</span>
-                    <span class="justification-grade">Grau ${item.grade || 'N/A'}</span>
+                    <div class="justification-header">
+                        <span class="component-key">${key}</span>
+                        <span class="component-grade grade-${grade}">${grade}</span>
+                        <span class="component-name">${ascodNames[key]}</span>
+                    </div>
                     <p class="justification-text">${item.justification || 'Justificativa não fornecida.'}</p>
                 </div>
             `;
@@ -265,7 +271,12 @@ function displayResults(result) {
     // Display TOAST Justification
     let toastHtml = '';
     if (result.toast && result.toast.justification) {
-        toastHtml = `<p>${result.toast.justification}</p>`;
+        toastHtml = `
+            <div class="justification-item toast-justification">
+                <strong>${result.toast_code || 'TOAST'}</strong>
+                <p class="justification-text">${result.toast.justification}</p>
+            </div>
+        `;
     } else {
         toastHtml = '<p>Justificativa TOAST não disponível.</p>';
     }
@@ -276,7 +287,7 @@ function displayResults(result) {
     if (result.natural_language_prompt) {
         fullAnalysisContent.innerHTML = `
             <h4>Texto Enviado para Análise</h4>
-            <p>${result.natural_language_prompt}</p>
+            <p class="analysis-prompt">${result.natural_language_prompt}</p>
         `;
     } else {
         fullAnalysisContent.innerHTML = `
