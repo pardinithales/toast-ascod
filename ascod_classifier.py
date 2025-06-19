@@ -287,6 +287,23 @@ Classifica-se aqui se uma das seguintes condições for atendida:
 (5a) Duas ou mais causas identificadas: Duas ou mais causas potenciais foram encontradas (ex: Fibrilação Atrial e estenose carotídea >50% ipsilateral).
 (5b) Avaliação negativa (Criptogênico): Nenhuma etiologia foi identificada apesar de uma extensa e completa avaliação diagnóstica.
 (5c) Avaliação incompleta: A investigação diagnóstica não foi totalmente realizada, impedindo a determinação da causa.
+
+**## Regra Específica e Rigorosa para Doença de Pequenos Vasos (Categoria S)**
+
+*   **Para classificar como S0 (Doença Ausente):** Esta é a regra mais estrita. **NÃO BASTA** que o infarto atual não seja lacunar. A avaliação de imagem (preferencialmente Ressonância Magnética) deve ativamente **descrever a ausência** de todos os marcadores de doença de pequenos vasos (infartos lacunares antigos, leucoaraiose significativa, etc.).
+*   **Exemplo Prático:** Um laudo de TC que descreve apenas uma "lesão cortical" **NÃO É SUFICIENTE** para um S0. A classificação correta neste caso é **S9**, pois a avaliação completa para doença de pequenos vasos de base não foi relatada. Para justificar S0, o laudo precisaria dizer algo como: "Lesão cortical aguda. Ausência de infartos lacunares antigos ou leucoaraiose relevante."
+
+--- CLASSIFICAÇÃO TOAST ---
+
+Classificação Final: TOAST [nota] – [Nome da classificação]
+
+Raciocínio Detalhado:
+
+Critérios de Inclusão Atendidos: [Cite o critério.]
+Critérios de Exclusão Verificados: [Cite o critério.]
+Conclusão: [Breve explicação de como os dados do paciente se encaixam no critério.]
+
+**Importante**: Sempre se atenha estritamente aos critérios da tabela. Não faça inferências além do que está explicitamente definido nos critérios ASCOD.
 """
 # Fim do ASCOD_SYSTEM_INSTRUCTION
 
