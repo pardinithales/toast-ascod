@@ -75,8 +75,20 @@ def analyze():
             return jsonify({'error': 'Tipo de análise não especificado'}), 400
         
         if result_json_str:
-            # Tenta carregar o JSON e extrair os códigos
+            # Tenta carregar o JSON
             result_data = json.loads(result_json_str)
+
+            # VERIFICAÇÃO DE ROBUSTEZ: Garante que a resposta da IA tem a estrutura esperada
+            if 'ascod' not in result_data or 'toast' not in result_data:
+                error_message = "A resposta da IA está mal formatada."
+                if 'error' in result_data:
+                    error_message = f"Erro da IA: {result_data.get('details', result_data['error'])}"
+                elif 'message' in result_data: # Outro formato de erro comum
+                    error_message = f"Erro da IA: {result_data['message']}"
+
+                return jsonify({'error': error_message, 'raw_response': result_data}), 500
+
+            # Extrai os códigos com segurança
             ascod_grades = [str(result_data['ascod'][letter]['grade']) for letter in 'ASCOD']
             ascod_code = f"A{ascod_grades[0]}-S{ascod_grades[1]}-C{ascod_grades[2]}-O{ascod_grades[3]}-D{ascod_grades[4]}"
             toast_code = f"TOAST {result_data['toast']['classification']}"
