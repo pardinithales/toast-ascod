@@ -35,6 +35,9 @@ function setupEventListeners() {
     if (stenosisRange) {
         stenosisRange.addEventListener('input', updateRangeValue);
     }
+    
+    // Conditional logic setup
+    setupConditionalLogic();
 }
 
 // Tab Switching
@@ -56,6 +59,75 @@ function switchTab(tab) {
 function updateRangeValue() {
     if (stenosisRange && rangeValue) {
         rangeValue.textContent = `${stenosisRange.value}%`;
+    }
+}
+
+// --- Conditional Logic for Form ---
+
+function setupConditionalLogic() {
+    const s_infarct_type = document.getElementById('infarct_type');
+    const s1_leuko = document.getElementById('s1_lacunar_plus_severe_leuko');
+    const s3_leuko = document.getElementById('s3_severe_leuko_isolated');
+    
+    const c1_pfo = document.getElementById('c1_pfo_pe_dvt');
+    const c2_pfo = document.getElementById('c2_pfo_asa');
+    const c3_pfo = document.getElementById('c3_pfo_isolated');
+
+    // Listeners
+    s_infarct_type?.addEventListener('change', handleInfarctTypeChange);
+    s1_leuko?.addEventListener('change', () => handleMutualExclusiveChange(s1_leuko, s3_leuko));
+    s3_leuko?.addEventListener('change', () => handleMutualExclusiveChange(s3_leuko, s1_leuko));
+    
+    c1_pfo?.addEventListener('change', () => handlePFOChange(c1_pfo, [c2_pfo, c3_pfo]));
+    c2_pfo?.addEventListener('change', () => handlePFOChange(c2_pfo, [c1_pfo, c3_pfo]));
+    c3_pfo?.addEventListener('change', () => handlePFOChange(c3_pfo, [c1_pfo, c2_pfo]));
+
+    // Initial state
+    handleInfarctTypeChange();
+}
+
+function handleInfarctTypeChange() {
+    const infarctType = document.getElementById('infarct_type').value;
+    const svdFields = [
+        's_has_htn_or_dm', 
+        's1_lacunar_infarct_syndrome', 
+        's1_lacunar_plus_severe_leuko', 
+        's3_severe_leuko_isolated'
+    ];
+    
+    const show = infarctType === 'subcortical_small_lacunar';
+    
+    svdFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        const parent = field?.closest('.form-group');
+        if (parent) {
+            parent.style.display = show ? '' : 'none';
+            if (!show) field.checked = false;
+        }
+    });
+}
+
+function handleMutualExclusiveChange(source, target) {
+    if (source.checked) {
+        target.checked = false;
+        target.disabled = true;
+    } else {
+        target.disabled = false;
+    }
+}
+
+function handlePFOChange(source, targets) {
+    if (source.checked) {
+        targets.forEach(target => {
+            if(target) {
+                target.checked = false;
+                target.disabled = true;
+            }
+        });
+    } else {
+        targets.forEach(target => {
+            if(target) target.disabled = false;
+        });
     }
 }
 
@@ -226,8 +298,8 @@ function resetAnalysis() {
     structuredForm.reset();
     document.getElementById('clinical-text').value = '';
     updateRangeValue();
-    toggleVenousThrombosis();
-    toggleDissectionHistory();
+    // Re-apply conditional logic to reset form to a consistent state
+    setupConditionalLogic(); 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -297,5 +369,4 @@ style.textContent = `
         border-radius: 8px;
     }
 `;
-document.head.appendChild(style); 
 document.head.appendChild(style); 
