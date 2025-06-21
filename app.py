@@ -103,7 +103,7 @@ def analyze():
 
         if 'ascod' in ai_result:
             ascod_grades = [ai_result['ascod'].get(cat, {}).get('grade', '9') for cat in ['A', 'S', 'C', 'O', 'D']]
-            ascod_code = '-'.join(map(str, ascod_grades))
+            ascod_code = ''.join(f"{letter}{grade}" for letter, grade in zip(['A','S','C','O','D'], ascod_grades))
 
         if 'toast' in ai_result:
             toast_code = ai_result['toast'].get('classification', 'Indeterminado')
