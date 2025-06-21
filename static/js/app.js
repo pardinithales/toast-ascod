@@ -252,6 +252,9 @@ function displayResults(result) {
             // Garante que o grau 0 seja exibido corretamente
             const grade = (item.grade !== null && typeof item.grade !== 'undefined') ? item.grade : 'N/A';
 
+            // Tenta obter a justificativa a partir de várias possíveis chaves que o modelo possa retornar
+            const justification = item.justification || item.justificativa || item.raciocinio || item.rationale || item.reason || '';
+
             return `
                 <div class="justification-item">
                     <div class="justification-header">
@@ -259,7 +262,7 @@ function displayResults(result) {
                         <span class="component-grade grade-${grade}">${grade}</span>
                         <span class="component-name">${ascodNames[key]}</span>
                     </div>
-                    <p class="justification-text">${item.justification || 'Justificativa não fornecida.'}</p>
+                    <p class="justification-text">${justification || 'Justificativa não fornecida.'}</p>
                 </div>
             `;
         }).join('');
@@ -269,12 +272,14 @@ function displayResults(result) {
     document.getElementById('ascod-details').innerHTML = ascodHtml;
 
     // Display TOAST Justification
+    const toastJustification = result.toast?.justification || result.toast?.justificativa || result.toast?.raciocinio || result.toast?.rationale || result.toast?.reason || '';
+
     let toastHtml = '';
-    if (result.toast && result.toast.justification) {
+    if (result.toast && toastJustification) {
         toastHtml = `
             <div class="justification-item toast-justification">
                 <strong>${result.toast_code || 'TOAST'}</strong>
-                <p class="justification-text">${result.toast.justification}</p>
+                <p class="justification-text">${toastJustification}</p>
             </div>
         `;
     } else {
